@@ -29,11 +29,11 @@ const LeaderCard = ({ image, name, role }: LeaderCardProps) => (
 );
 
 const leaders = [
-  { id: 1, name: "Lay Reader 1", role: "Lay Reader", image: "/images/leaders/lay1.jpg" },
-  { id: 2, name: "Lay Reader 2", role: "Lay Reader", image: "/images/leaders/lay2.jpg" },
-  { id: 3, name: "Lay Reader 3", role: "Lay Reader", image: "/images/leaders/lay3.jpg" },
-  { id: 4, name: "Lay Reader 4", role: "Lay Reader", image: "/images/leaders/lay4.jpg" },
-  { id: 5, name: "Lay Reader 5", role: "Lay Reader", image: "/images/leaders/lay5.png" },
+  { id: 1, name: "Margaret", role: "Lay Reader", image: "/images/leaders/lay1.jpg" },
+  { id: 2, name: "Consolata", role: "Lay Reader", image: "/images/leaders/lay2.jpg" },
+  { id: 3, name: "Lydia", role: "Lay Reader", image: "/images/leaders/lay3.jpg" },
+  { id: 4, name: "Francis", role: "Lay Reader", image: "/images/leaders/lay4.jpg" },
+  { id: 5, name: "Damaris", role: "Lay Reader", image: "/images/leaders/lay5.png" },
 ];
 
 const ChurchLeadersSection = () => {
