@@ -1,4 +1,5 @@
 import { ChevronDown } from "lucide-react";
+import { Link } from "react-router-dom";
 import membersSeekers from "@/assets/members-seekers.jpg";
 import churchLeaders from "@/assets/church-leaders.jpg";
 import councilLeaders from "@/assets/council-leaders.jpg";
@@ -7,11 +8,12 @@ interface CategoryCircleProps {
   image: string;
   label: string;
   delay?: string;
+  href?: string;
 }
 
-const CategoryCircle = ({ image, label, delay = "0s" }: CategoryCircleProps) => (
-  <a
-    href="#"
+const CategoryCircle = ({ image, label, delay = "0s", href = "#" }: CategoryCircleProps) => (
+  <Link
+    to={href}
     className="group flex flex-col items-center gap-3 opacity-0 animate-scale-in"
     style={{ animationDelay: delay }}
   >
@@ -28,7 +30,7 @@ const CategoryCircle = ({ image, label, delay = "0s" }: CategoryCircleProps) => 
         </span>
       </div>
     </div>
-  </a>
+  </Link>
 );
 
 const HeroSection = () => {
@@ -88,13 +90,12 @@ const HeroSection = () => {
               label="Members & Seekers"
               delay="0.5s"
             />
-            <a href="/leadership">
-              <CategoryCircle
-                image={churchLeaders}
-                label="Church Leaders"
-                delay="0.6s"
-              />
-            </a>
+            <CategoryCircle
+              image={churchLeaders}
+              label="Church Leaders"
+              delay="0.6s"
+              href="/leadership"
+            />
             <CategoryCircle
               image={councilLeaders}
               label="Council Leaders"
