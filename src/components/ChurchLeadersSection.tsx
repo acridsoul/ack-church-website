@@ -28,14 +28,12 @@ const LeaderCard = ({ image, name, role }: LeaderCardProps) => (
   </div>
 );
 
-// Placeholder leaders - user will update with actual photos
 const leaders = [
-  { id: 1, name: "Leader Name", role: "Clergy", image: "/placeholder.svg" },
-  { id: 2, name: "Leader Name", role: "Lay Reader", image: "/placeholder.svg" },
-  { id: 3, name: "Leader Name", role: "Lay Reader", image: "/placeholder.svg" },
-  { id: 4, name: "Leader Name", role: "Lay Reader", image: "/placeholder.svg" },
-  { id: 5, name: "Leader Name", role: "Lay Reader", image: "/placeholder.svg" },
-  { id: 6, name: "Leader Name", role: "Lay Reader", image: "/placeholder.svg" },
+  { id: 1, name: "Lay Reader 1", role: "Lay Reader", image: "/images/leaders/lay1.jpg" },
+  { id: 2, name: "Lay Reader 2", role: "Lay Reader", image: "/images/leaders/lay2.jpg" },
+  { id: 3, name: "Lay Reader 3", role: "Lay Reader", image: "/images/leaders/lay3.jpg" },
+  { id: 4, name: "Lay Reader 4", role: "Lay Reader", image: "/images/leaders/lay4.jpg" },
+  { id: 5, name: "Lay Reader 5", role: "Lay Reader", image: "/images/leaders/lay5.png" },
 ];
 
 const ChurchLeadersSection = () => {
@@ -89,9 +87,6 @@ const ChurchLeadersSection = () => {
           </Carousel>
         </div>
 
-        <p className="text-center text-muted-foreground text-sm font-body italic">
-          Photos coming soon - our leaders are committed to serving God and this community.
-        </p>
       </div>
     </section>
   );
