@@ -42,10 +42,10 @@ const HeroSection = () => {
       {/* Hero Image on right */}
       <div className="absolute right-0 top-0 bottom-0 w-full lg:w-1/2">
         <img
-          src="/images/churchnew.png"
-          alt="ACK St. Stephens Church Gatuanyaga sign"
+          src="/images/church1.png"
+          alt="ACK St. Stephens Church Gatuanyaga aerial view"
           className="w-full h-full object-cover opacity-0 animate-slide-in-right"
-          style={{ animationDelay: "0.3s", objectPosition: "center center" }}
+          style={{ animationDelay: "0.3s", objectPosition: "left center" }}
         />
         <div className="absolute bottom-4 right-4 left-4 lg:left-auto bg-navy/80 text-primary-foreground text-xs p-3 max-w-md rounded-sm opacity-0 animate-fade-in" style={{ animationDelay: "0.8s" }}>
           <p>
