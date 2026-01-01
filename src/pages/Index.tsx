@@ -1,6 +1,7 @@
 import TopInfoBar from "@/components/TopInfoBar";
 import MainNavbar from "@/components/MainNavbar";
 import HeroSection from "@/components/HeroSection";
+import ChurchLeadersSection from "@/components/ChurchLeadersSection";
 import { Button } from "@/components/ui/button";
 import { Calendar, Users, Heart, BookOpen } from "lucide-react";
 
@@ -15,6 +16,9 @@ const Index = () => {
 
       {/* Hero Section */}
       <HeroSection />
+
+      {/* Church Leaders Section */}
+      <ChurchLeadersSection />
 
       {/* Quick Links Section */}
       <section id="content" className="py-16 md:py-24 bg-cream">

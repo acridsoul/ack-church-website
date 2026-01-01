@@ -1,0 +1,101 @@
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+
+interface LeaderCardProps {
+  image: string;
+  name: string;
+  role: string;
+}
+
+const LeaderCard = ({ image, name, role }: LeaderCardProps) => (
+  <div className="bg-card rounded-lg overflow-hidden shadow-card hover:shadow-lg transition-shadow duration-300 group">
+    <div className="aspect-[3/4] overflow-hidden">
+      <img
+        src={image}
+        alt={name}
+        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+      />
+    </div>
+    <div className="p-4 text-center">
+      <h4 className="font-display text-lg text-foreground">{name}</h4>
+      <p className="text-muted-foreground text-sm font-body">{role}</p>
+    </div>
+  </div>
+);
+
+// Placeholder leaders - user will update with actual photos
+const leaders = [
+  { id: 1, name: "Leader Name", role: "Clergy", image: "/placeholder.svg" },
+  { id: 2, name: "Leader Name", role: "Lay Reader", image: "/placeholder.svg" },
+  { id: 3, name: "Leader Name", role: "Lay Reader", image: "/placeholder.svg" },
+  { id: 4, name: "Leader Name", role: "Lay Reader", image: "/placeholder.svg" },
+  { id: 5, name: "Leader Name", role: "Lay Reader", image: "/placeholder.svg" },
+  { id: 6, name: "Leader Name", role: "Lay Reader", image: "/placeholder.svg" },
+];
+
+const ChurchLeadersSection = () => {
+  return (
+    <section id="church-leaders" className="py-16 md:py-24 bg-background">
+      <div className="container mx-auto px-4">
+        {/* Main Image Banner */}
+        <div className="relative rounded-xl overflow-hidden mb-12">
+          <img
+            src="/images/church-leaders-group.jpg"
+            alt="ACK St. Stephen's Church Clergy and Lay Readers"
+            className="w-full h-64 md:h-96 object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-navy/80 via-navy/20 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">
+            <h2 className="font-display text-3xl md:text-4xl text-primary-foreground mb-2">
+              Our Church Leaders
+            </h2>
+            <p className="text-primary-foreground/80 font-body max-w-2xl">
+              Meet our dedicated clergy and lay readers who faithfully serve our congregation 
+              and community with love and devotion.
+            </p>
+          </div>
+        </div>
+
+        {/* Leaders Carousel */}
+        <div className="mb-8">
+          <h3 className="font-display text-2xl text-navy text-center mb-8">
+            Clergy & Lay Readers
+          </h3>
+          
+          <Carousel
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+            className="w-full"
+          >
+            <CarouselContent className="-ml-4">
+              {leaders.map((leader) => (
+                <CarouselItem key={leader.id} className="pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4">
+                  <LeaderCard
+                    image={leader.image}
+                    name={leader.name}
+                    role={leader.role}
+                  />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="hidden md:flex -left-4" />
+            <CarouselNext className="hidden md:flex -right-4" />
+          </Carousel>
+        </div>
+
+        <p className="text-center text-muted-foreground text-sm font-body italic">
+          Photos coming soon - our leaders are committed to serving God and this community.
+        </p>
+      </div>
+    </section>
+  );
+};
+
+export default ChurchLeadersSection;

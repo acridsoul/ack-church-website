@@ -88,11 +88,13 @@ const HeroSection = () => {
               label="Members & Seekers"
               delay="0.5s"
             />
-            <CategoryCircle
-              image={churchLeaders}
-              label="Church Leaders"
-              delay="0.6s"
-            />
+            <a href="#church-leaders">
+              <CategoryCircle
+                image={churchLeaders}
+                label="Church Leaders"
+                delay="0.6s"
+              />
+            </a>
             <CategoryCircle
               image={councilLeaders}
               label="Council Leaders"
