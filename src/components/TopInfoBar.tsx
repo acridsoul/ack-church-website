@@ -7,18 +7,18 @@ const TopInfoBar = () => {
         {/* Contact Info */}
         <div className="flex items-center gap-6 text-sm">
           <a 
-            href="mailto:info@faithcommunity.org" 
+            href="mailto:ackststephenschurch@gmail.com" 
             className="flex items-center gap-2 hover:text-gold transition-colors duration-200"
           >
             <Mail className="h-4 w-4" />
-            <span className="hidden sm:inline">info@faithcommunity.org</span>
+            <span className="hidden sm:inline">ackststephenschurch@gmail.com</span>
           </a>
           <a 
-            href="tel:+1-555-123-4567" 
+            href="tel:+254-7xxxxxxxx" 
             className="flex items-center gap-2 hover:text-gold transition-colors duration-200"
           >
             <Phone className="h-4 w-4" />
-            <span className="hidden sm:inline">+1 (555) 123-4567</span>
+            <span className="hidden sm:inline">07xxxxxxxx</span>
           </a>
         </div>
 
