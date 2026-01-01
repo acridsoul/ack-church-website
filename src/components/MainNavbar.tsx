@@ -34,17 +34,18 @@ const MainNavbar = () => {
     <nav className="bg-background border-b border-border py-3 px-4 sticky top-0 z-50 shadow-sm">
       <div className="container mx-auto flex items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-3">
+        <Link to="/" className="flex items-center gap-2 sm:gap-3">
           <img 
             src="/images/ack-diocese-logo.png" 
             alt="A.C.K. Diocese of Thika Logo" 
-            className="h-16 w-auto object-contain"
+            className="h-12 sm:h-16 w-auto object-contain"
           />
-          <div className="hidden md:block">
-            <h1 className="font-display text-xl font-bold text-navy leading-tight">
-              A.C.K. ST Stephen's Church
+          <div>
+            <h1 className="font-display text-sm sm:text-xl font-bold text-navy leading-tight">
+              <span className="md:hidden">ACK St. Stephen's</span>
+              <span className="hidden md:inline">A.C.K. ST Stephen's Church</span>
             </h1>
-            <p className="text-xs text-muted-foreground">Gatuanyaga</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">Gatuanyaga</p>
           </div>
         </Link>
 
