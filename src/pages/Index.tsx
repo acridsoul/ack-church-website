@@ -98,7 +98,7 @@ const Index = () => {
             Join Us This Sunday
           </h2>
           <p className="text-primary-foreground/80 mb-8 max-w-xl mx-auto font-body">
-            Experience the warmth of our community. Service times: 9:00 AM & 11:00 AM
+            Experience the warmth of our community.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button variant="gold" size="lg">
@@ -116,40 +116,49 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
-              <h3 className="font-display text-xl mb-4">Faith Community Church</h3>
+              <div className="flex items-center gap-3 mb-4">
+                <img 
+                  src="/images/ack-diocese-logo.png" 
+                  alt="A.C.K. Diocese of Thika Logo" 
+                  className="h-12 w-auto"
+                />
+                <h3 className="font-display text-lg">A.C.K. St. Stephen's Church</h3>
+              </div>
               <p className="text-primary-foreground/70 text-sm font-body">
-                United in Christ, serving our community with love and compassion.
+                Gatuanyaga - A.C.K. Diocese of Thika. United in Christ, serving our community with love and compassion.
+              </p>
+              <p className="text-primary-foreground/60 text-xs font-body mt-2 italic">
+                "I can do all things through Christ"
               </p>
             </div>
             <div>
               <h4 className="font-semibold mb-4 text-gold font-body">Quick Links</h4>
               <ul className="space-y-2 text-sm font-body">
                 <li><a href="/about" className="text-primary-foreground/70 hover:text-gold transition-colors">About Us</a></li>
+                <li><a href="/leadership" className="text-primary-foreground/70 hover:text-gold transition-colors">Leadership</a></li>
                 <li><a href="/events" className="text-primary-foreground/70 hover:text-gold transition-colors">Events</a></li>
-                <li><a href="/sermons" className="text-primary-foreground/70 hover:text-gold transition-colors">Sermons</a></li>
                 <li><a href="/contact" className="text-primary-foreground/70 hover:text-gold transition-colors">Contact</a></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4 text-gold font-body">Service Times</h4>
+              <h4 className="font-semibold mb-4 text-gold font-body">Sunday Service Times</h4>
               <ul className="space-y-2 text-sm font-body text-primary-foreground/70">
-                <li>Sunday: 9:00 AM & 11:00 AM</li>
-                <li>Wednesday: 7:00 PM</li>
-                <li>Friday Youth: 6:30 PM</li>
+                <li>7:00 AM - Express Service</li>
+                <li>8:30 AM - English Service</li>
+                <li>10:30 AM - Kikuyu Service</li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold mb-4 text-gold font-body">Contact Us</h4>
               <ul className="space-y-2 text-sm font-body text-primary-foreground/70">
-                <li>123 Faith Avenue</li>
-                <li>Community City, ST 12345</li>
-                <li>+1 (555) 123-4567</li>
-                <li>info@faithcommunity.org</li>
+                <li>Gatuanyaga, Kenya</li>
+                <li>07xxxxxxxx</li>
+                <li>ackststephenschurch@gmail.com</li>
               </ul>
             </div>
           </div>
           <div className="border-t border-primary-foreground/20 mt-8 pt-8 text-center text-sm text-primary-foreground/50 font-body">
-            <p>© 2025 Faith Community Church. All rights reserved.</p>
+            <p>© 2025 A.C.K. St. Stephen's Church Gatuanyaga. All rights reserved.</p>
           </div>
         </div>
       </footer>
