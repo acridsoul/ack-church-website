@@ -19,9 +19,19 @@ const Leadership = () => {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
-              <h3 className="font-display text-xl mb-4">A.C.K. St. Stephen's Church</h3>
+              <div className="flex items-center gap-3 mb-4">
+                <img 
+                  src="/images/ack-diocese-logo.png" 
+                  alt="A.C.K. Diocese of Thika Logo" 
+                  className="h-12 w-auto"
+                />
+                <h3 className="font-display text-lg">A.C.K. St. Stephen's Church</h3>
+              </div>
               <p className="text-primary-foreground/70 text-sm font-body">
-                Gatuanyaga - United in Christ, serving our community with love and compassion.
+                Gatuanyaga - A.C.K. Diocese of Thika. United in Christ, serving our community with love and compassion.
+              </p>
+              <p className="text-primary-foreground/60 text-xs font-body mt-2 italic">
+                "I can do all things through Christ"
               </p>
             </div>
             <div>
@@ -34,11 +44,11 @@ const Leadership = () => {
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4 text-gold font-body">Service Times</h4>
+              <h4 className="font-semibold mb-4 text-gold font-body">Sunday Service Times</h4>
               <ul className="space-y-2 text-sm font-body text-primary-foreground/70">
-                <li>Sunday: 9:00 AM & 11:00 AM</li>
-                <li>Wednesday: 7:00 PM</li>
-                <li>Friday Youth: 6:30 PM</li>
+                <li>7:00 AM - Express Service</li>
+                <li>8:30 AM - English Service</li>
+                <li>10:30 AM - Kikuyu Service</li>
               </ul>
             </div>
             <div>
