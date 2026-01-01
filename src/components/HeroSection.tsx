@@ -66,17 +66,20 @@ const HeroSection = () => {
 
           {/* Welcome Text */}
           <h2 className="font-display text-xl md:text-2xl text-primary-foreground mb-4 opacity-0 animate-fade-in" style={{ animationDelay: "0.2s" }}>
-            Welcome to Faith Community Church!
+            Welcome to ACK St. Stephen's Church Gatuanyaga!
           </h2>
 
           <p className="text-primary-foreground/80 text-base md:text-lg mb-4 font-body opacity-0 animate-fade-in" style={{ animationDelay: "0.3s" }}>
             Find ideas, inspiration, and resources for welcoming God's Word made flesh among us.
           </p>
 
-          <p className="text-primary-foreground/70 text-sm md:text-base mb-10 font-body opacity-0 animate-fade-in" style={{ animationDelay: "0.4s" }}>
-            2025-2026 marks a special anniversary of faith and renewal. Find the full text, including 
-            "For us and for our salvation [Jesus] came down from heaven," in our foundational documents.
-          </p>
+          <div className="bg-gold/20 border-l-4 border-gold p-4 rounded-r-md mb-10 opacity-0 animate-fade-in" style={{ animationDelay: "0.4s" }}>
+            <p className="text-gold font-semibold text-sm uppercase tracking-wide mb-2 font-body">Theme of the Year</p>
+            <p className="text-primary-foreground italic text-sm md:text-base font-body">
+              "And the things you have heard me say in the presence of many witnesses entrust to reliable people who will also be qualified to teach others."
+            </p>
+            <p className="text-primary-foreground/70 text-sm mt-2 font-body">— 2 Timothy 2:2</p>
+          </div>
 
           {/* Category Circles */}
           <div className="flex flex-wrap gap-6 md:gap-8 mb-10">
