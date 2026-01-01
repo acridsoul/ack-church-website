@@ -46,21 +46,11 @@ const MainNavbar = () => {
       <div className="container mx-auto flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-3">
-          <div className="w-16 h-16 flex items-center justify-center">
-            <svg viewBox="0 0 64 64" className="w-full h-full">
-              {/* Church building silhouette */}
-              <circle cx="32" cy="32" r="30" fill="hsl(220, 45%, 20%)" />
-              {/* Cross */}
-              <rect x="29" y="12" width="6" height="20" fill="hsl(42, 70%, 50%)" />
-              <rect x="24" y="17" width="16" height="6" fill="hsl(42, 70%, 50%)" />
-              {/* Church roof */}
-              <polygon points="32,28 16,42 48,42" fill="hsl(0, 62%, 45%)" />
-              {/* Church body */}
-              <rect x="20" y="42" width="24" height="14" fill="hsl(0, 62%, 45%)" />
-              {/* Door */}
-              <rect x="28" y="48" width="8" height="8" fill="hsl(220, 45%, 20%)" />
-            </svg>
-          </div>
+          <img 
+            src="/images/ack-diocese-logo.png" 
+            alt="A.C.K. Diocese of Thika Logo" 
+            className="h-16 w-auto object-contain"
+          />
           <div className="hidden md:block">
             <h1 className="font-display text-xl font-bold text-navy leading-tight">
               A.C.K. ST Stephen's Church
