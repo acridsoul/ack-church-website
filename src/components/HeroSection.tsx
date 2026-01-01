@@ -87,19 +87,15 @@ const HeroSection = () => {
           <div className="flex flex-wrap gap-6 md:gap-8 mb-10">
             <CategoryCircle
               image={membersSeekers}
-              label="Members & Seekers"
+              label="Ministries"
               delay="0.5s"
+              href="/ministries"
             />
             <CategoryCircle
               image={churchLeaders}
               label="Church Leaders"
               delay="0.6s"
               href="/leadership"
-            />
-            <CategoryCircle
-              image={councilLeaders}
-              label="Council Leaders"
-              delay="0.7s"
             />
           </div>
 

@@ -32,6 +32,7 @@ const navItems = [
       { label: "Missions", href: "/strategies/missions" },
     ],
   },
+  { label: "Ministries", href: "/ministries" },
   { label: "Leadership", href: "/leadership" },
   { label: "Events", href: "/events" },
   { label: "Newsletters", href: "/newsletters" },
