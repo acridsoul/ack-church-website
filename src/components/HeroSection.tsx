@@ -88,7 +88,7 @@ const HeroSection = () => {
               label="Members & Seekers"
               delay="0.5s"
             />
-            <a href="#church-leaders">
+            <a href="/leadership">
               <CategoryCircle
                 image={churchLeaders}
                 label="Church Leaders"
