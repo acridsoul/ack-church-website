@@ -1,5 +1,4 @@
 import { ChevronDown } from "lucide-react";
-import heroCommunity from "@/assets/hero-community.jpg";
 import membersSeekers from "@/assets/members-seekers.jpg";
 import churchLeaders from "@/assets/church-leaders.jpg";
 import councilLeaders from "@/assets/council-leaders.jpg";
@@ -41,8 +40,8 @@ const HeroSection = () => {
       {/* Hero Image on right */}
       <div className="absolute right-0 top-0 bottom-0 w-full lg:w-1/2">
         <img
-          src={heroCommunity}
-          alt="Community volunteers helping at food pantry"
+          src="/images/church1.png"
+          alt="ACK St. Stephens Church Gatuanyaga aerial view"
           className="w-full h-full object-cover opacity-0 animate-slide-in-right"
           style={{ animationDelay: "0.3s" }}
         />
