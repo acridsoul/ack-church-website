@@ -13,7 +13,6 @@ import {
 
 const navItems = [
   { label: "Home", href: "/" },
-  { label: "What We Believe", href: "/beliefs" },
   {
     label: "About",
     href: "/about",
@@ -23,20 +22,9 @@ const navItems = [
       { label: "Our Vision", href: "/about/vision" },
     ],
   },
-  {
-    label: "Strategies",
-    href: "/strategies",
-    children: [
-      { label: "Community Outreach", href: "/strategies/outreach" },
-      { label: "Youth Programs", href: "/strategies/youth" },
-      { label: "Missions", href: "/strategies/missions" },
-    ],
-  },
   { label: "Ministries", href: "/ministries" },
   { label: "Leadership", href: "/leadership" },
-  { label: "Events", href: "/events" },
   { label: "Newsletters", href: "/newsletters" },
-  { label: "Careers", href: "/careers" },
 ];
 
 const MainNavbar = () => {
@@ -104,11 +92,8 @@ const MainNavbar = () => {
           </NavigationMenu>
         </div>
 
-        {/* CTA Buttons */}
-        <div className="hidden md:flex items-center gap-3">
-          <Button variant="navyOutline" size="sm">
-            Partner With Us
-          </Button>
+        {/* CTA Button */}
+        <div className="hidden md:flex items-center">
           <Button variant="gold" size="sm">
             Donate
           </Button>
@@ -155,9 +140,6 @@ const MainNavbar = () => {
                 </div>
               ))}
               <div className="flex flex-col gap-2 mt-4 pt-4 border-t border-border">
-                <Button variant="navyOutline" className="w-full">
-                  Partner With Us
-                </Button>
                 <Button variant="gold" className="w-full">
                   Donate
                 </Button>
