@@ -47,12 +47,6 @@ const HeroSection = () => {
           className="w-full h-full object-cover opacity-0 animate-slide-in-right"
           style={{ animationDelay: "0.3s", objectPosition: "left center" }}
         />
-        <div className="absolute bottom-4 right-4 left-4 lg:left-auto bg-navy/80 text-primary-foreground text-xs p-3 max-w-md rounded-sm opacity-0 animate-fade-in" style={{ animationDelay: "0.8s" }}>
-          <p>
-            Community Place Kitchen volunteers unload groceries for the week's community meal. 
-            Our church is located in an affordable housing complex.
-          </p>
-        </div>
       </div>
 
       {/* Content */}
