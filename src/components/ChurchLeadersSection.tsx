@@ -43,14 +43,13 @@ const ChurchLeadersSection = () => {
     <section id="church-leaders" className="py-16 md:py-24 bg-background">
       <div className="container mx-auto px-4">
         {/* Main Image Banner */}
-        <div className="relative rounded-xl overflow-hidden mb-12">
+        <div className="relative rounded-xl overflow-hidden mb-12 bg-navy">
           <img
             src="/images/church-leaders-group.jpg"
             alt="ACK St. Stephen's Church Clergy and Lay Readers"
-            className="w-full h-64 md:h-96 object-cover"
+            className="w-full h-auto max-h-[500px] object-contain mx-auto"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-navy/80 via-navy/20 to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-navy via-navy/90 to-transparent p-6 md:p-10">
             <h2 className="font-display text-3xl md:text-4xl text-primary-foreground mb-2">
               Our Church Leaders
             </h2>
