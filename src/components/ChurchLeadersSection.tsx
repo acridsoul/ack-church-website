@@ -58,10 +58,26 @@ const ChurchLeadersSection = () => {
           </div>
         </div>
 
-        {/* Leaders Carousel */}
+        {/* Vicar Section */}
+        <div className="mb-12">
+          <h3 className="font-display text-2xl text-navy text-center mb-8">
+            Vicar In Charge
+          </h3>
+          <div className="flex justify-center">
+            <div className="w-64">
+              <LeaderCard
+                image="/images/leaders/vicar.jpg"
+                name="Rev. Henry Kinyua"
+                role="Vicar In Charge"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Lay Readers Carousel */}
         <div className="mb-8">
           <h3 className="font-display text-2xl text-navy text-center mb-8">
-            Clergy & Lay Readers
+            Lay Readers
           </h3>
           
           <Carousel
