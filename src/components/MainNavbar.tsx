@@ -63,9 +63,9 @@ const MainNavbar = () => {
           </div>
           <div className="hidden md:block">
             <h1 className="font-display text-xl font-bold text-navy leading-tight">
-              Faith Community
+              A.C.K. ST Stephen's Church
             </h1>
-            <p className="text-xs text-muted-foreground">United in Christ</p>
+            <p className="text-xs text-muted-foreground">Gatuanyaga</p>
           </div>
         </Link>
 
