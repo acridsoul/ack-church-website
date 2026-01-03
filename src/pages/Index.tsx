@@ -2,7 +2,7 @@ import TopInfoBar from "@/components/TopInfoBar";
 import MainNavbar from "@/components/MainNavbar";
 import HeroSection from "@/components/HeroSection";
 import { Button } from "@/components/ui/button";
-import { Users, Heart, Music, Leaf } from "lucide-react";
+import { Music } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const featuredMinistries = [
@@ -10,19 +10,19 @@ const featuredMinistries = [
     name: "KAMA",
     subtitle: "Kenya Anglican Men's Association",
     description: "A community of men dedicated to spiritual growth and service.",
-    icon: Users,
+    logo: "/images/ministries/kama-logo.png",
   },
   {
-    name: "Women's Guild",
-    subtitle: "",
+    name: "Mothers Union",
+    subtitle: "Christian Care for Families",
     description: "Empowering women through fellowship and outreach.",
-    icon: Heart,
+    logo: "/images/ministries/mothers-union-logo.png",
   },
   {
     name: "KAYO",
     subtitle: "Youth Ministry",
     description: "Engaging young people in faith and leadership.",
-    icon: Leaf,
+    logo: "/images/ministries/kayo-logo.png",
   },
   {
     name: "Daughters of Zion",
@@ -60,8 +60,12 @@ const Index = () => {
                 key={ministry.name}
                 className="bg-card rounded-lg p-6 shadow-card hover:shadow-lg transition-shadow duration-300 group"
               >
-                <div className="w-12 h-12 bg-gold/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-gold/20 transition-colors duration-300">
-                  <ministry.icon className="h-6 w-6 text-gold" />
+                <div className="w-16 h-16 bg-muted/30 rounded-full flex items-center justify-center mb-4 group-hover:bg-muted/50 transition-colors duration-300 overflow-hidden">
+                  {ministry.logo ? (
+                    <img src={ministry.logo} alt={`${ministry.name} logo`} className="w-14 h-14 object-contain" />
+                  ) : ministry.icon ? (
+                    <ministry.icon className="h-8 w-8 text-gold" />
+                  ) : null}
                 </div>
                 <h3 className="font-display text-xl text-foreground mb-1">{ministry.name}</h3>
                 {ministry.subtitle && (
