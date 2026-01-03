@@ -1,13 +1,36 @@
 import { useParams, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 import TopInfoBar from "@/components/TopInfoBar";
 import MainNavbar from "@/components/MainNavbar";
-import { getSermonById } from "@/data/sermons";
-import { Calendar, User, BookOpen, ArrowLeft, Download } from "lucide-react";
+import { fetchSermonById, Sermon } from "@/lib/sermonLoader";
+import { Calendar, User, BookOpen, ArrowLeft, Download, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const SermonDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const sermon = id ? getSermonById(id) : undefined;
+  const [sermon, setSermon] = useState<Sermon | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadSermon = async () => {
+      if (!id) {
+        setError("No sermon ID provided");
+        setLoading(false);
+        return;
+      }
+      try {
+        const data = await fetchSermonById(id);
+        setSermon(data);
+      } catch (err) {
+        setError("Failed to load sermon");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadSermon();
+  }, [id]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -20,7 +43,6 @@ const SermonDetail = () => {
   };
 
   const renderMarkdown = (content: string) => {
-    // Simple markdown rendering for headers, bold, lists, and blockquotes
     return content.split("\n").map((line, index) => {
       // Headers
       if (line.startsWith("### ")) {
@@ -57,7 +79,6 @@ const SermonDetail = () => {
       // List items
       if (line.startsWith("- ")) {
         const content = line.replace("- ", "");
-        // Handle bold text
         const parts = content.split(/(\*\*.*?\*\*)/);
         return (
           <li key={index} className="ml-4 font-body text-foreground/90">
@@ -103,7 +124,20 @@ const SermonDetail = () => {
     });
   };
 
-  if (!sermon) {
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <TopInfoBar />
+        <MainNavbar />
+        <div className="container mx-auto px-4 py-16 text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto text-gold" />
+          <p className="text-muted-foreground font-body mt-4">Loading sermon...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !sermon) {
     return (
       <div className="min-h-screen bg-background">
         <TopInfoBar />
