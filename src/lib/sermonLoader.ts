@@ -1,4 +1,4 @@
-import matter from "gray-matter";
+import yaml from "js-yaml";
 
 export interface SermonService {
   preacher: string;
@@ -37,25 +37,36 @@ interface SermonIndex {
   sermons: string[];
 }
 
-const parseSermonContent = (content: string): { english: string; kikuyu: string } => {
-  const parts = content.split(/^---$/m);
+const parseFrontmatter = (rawContent: string): { data: SermonFrontmatter; content: string } => {
+  const frontmatterRegex = /^---\n([\s\S]*?)\n---/;
+  const match = rawContent.match(frontmatterRegex);
   
+  if (match) {
+    const frontmatter = yaml.load(match[1]) as SermonFrontmatter;
+    const body = rawContent.slice(match[0].length).trim();
+    return { data: frontmatter, content: body };
+  }
+  
+  throw new Error("Invalid frontmatter format");
+};
+
+const parseSermonContent = (content: string): { english: string; kikuyu: string } => {
   let englishNotes = "";
   let kikuyuNotes = "";
   
-  if (parts.length >= 2) {
-    // Find sections by looking for the headers
-    const englishMatch = content.match(/## English Service Notes\s*([\s\S]*?)(?=---\s*## Kikuyu Service Notes|$)/);
-    const kikuyuMatch = content.match(/## Kikuyu Service Notes\s*([\s\S]*?)$/);
-    
-    if (englishMatch) {
-      englishNotes = englishMatch[1].trim();
-    }
-    if (kikuyuMatch) {
-      kikuyuNotes = kikuyuMatch[1].trim();
-    }
-  } else {
-    // Fallback: use whole content for English
+  // Find sections by looking for the headers
+  const englishMatch = content.match(/## English Service Notes\s*([\s\S]*?)(?=---\s*## Kikuyu Service Notes|$)/);
+  const kikuyuMatch = content.match(/## Kikuyu Service Notes\s*([\s\S]*?)$/);
+  
+  if (englishMatch) {
+    englishNotes = englishMatch[1].trim();
+  }
+  if (kikuyuMatch) {
+    kikuyuNotes = kikuyuMatch[1].trim();
+  }
+  
+  // Fallback: use whole content for English if no sections found
+  if (!englishNotes && !kikuyuNotes) {
     englishNotes = content.trim();
   }
   
@@ -78,8 +89,7 @@ export const fetchSermon = async (filename: string): Promise<Sermon> => {
   }
   
   const rawContent = await response.text();
-  const { data, content } = matter(rawContent);
-  const frontmatter = data as SermonFrontmatter;
+  const { data: frontmatter, content } = parseFrontmatter(rawContent);
   const { english, kikuyu } = parseSermonContent(content);
   
   return {
