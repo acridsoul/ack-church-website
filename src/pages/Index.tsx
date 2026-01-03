@@ -7,22 +7,26 @@ import { Link } from "react-router-dom";
 
 const featuredMinistries = [
   {
-    name: "Men's Fellowship",
+    name: "KAMA",
+    subtitle: "Kenya Anglican Men's Association",
     description: "A community of men dedicated to spiritual growth and service.",
     icon: Users,
   },
   {
     name: "Women's Guild",
+    subtitle: "",
     description: "Empowering women through fellowship and outreach.",
     icon: Heart,
   },
   {
-    name: "Youth Ministry",
+    name: "KAYO",
+    subtitle: "Youth Ministry",
     description: "Engaging young people in faith and leadership.",
     icon: Leaf,
   },
   {
-    name: "Choir & Music",
+    name: "Daughters of Zion",
+    subtitle: "Choir & Music Ministry",
     description: "Leading worship through music and song.",
     icon: Music,
   },
@@ -59,7 +63,10 @@ const Index = () => {
                 <div className="w-12 h-12 bg-gold/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-gold/20 transition-colors duration-300">
                   <ministry.icon className="h-6 w-6 text-gold" />
                 </div>
-                <h3 className="font-display text-xl text-foreground mb-2">{ministry.name}</h3>
+                <h3 className="font-display text-xl text-foreground mb-1">{ministry.name}</h3>
+                {ministry.subtitle && (
+                  <p className="text-gold text-xs font-medium mb-2">{ministry.subtitle}</p>
+                )}
                 <p className="text-muted-foreground text-sm mb-4 font-body">
                   {ministry.description}
                 </p>
