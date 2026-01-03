@@ -2,7 +2,31 @@ import TopInfoBar from "@/components/TopInfoBar";
 import MainNavbar from "@/components/MainNavbar";
 import HeroSection from "@/components/HeroSection";
 import { Button } from "@/components/ui/button";
-import { Calendar, Users, Heart, BookOpen } from "lucide-react";
+import { Users, Heart, Music, Leaf } from "lucide-react";
+import { Link } from "react-router-dom";
+
+const featuredMinistries = [
+  {
+    name: "Men's Fellowship",
+    description: "A community of men dedicated to spiritual growth and service.",
+    icon: Users,
+  },
+  {
+    name: "Women's Guild",
+    description: "Empowering women through fellowship and outreach.",
+    icon: Heart,
+  },
+  {
+    name: "Youth Ministry",
+    description: "Engaging young people in faith and leadership.",
+    icon: Leaf,
+  },
+  {
+    name: "Choir & Music",
+    description: "Leading worship through music and song.",
+    icon: Music,
+  },
+];
 
 const Index = () => {
   return (
@@ -16,73 +40,39 @@ const Index = () => {
       {/* Hero Section */}
       <HeroSection />
 
-      {/* Quick Links Section */}
+      {/* Ministries Preview Section */}
       <section id="content" className="py-16 md:py-24 bg-cream">
         <div className="container mx-auto px-4">
           <h2 className="font-display text-3xl md:text-4xl text-center text-navy mb-4">
-            How Can We Help You?
+            Our <span className="text-gold italic">Ministries</span>
           </h2>
           <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto font-body">
-            Whether you're seeking spiritual guidance, looking to connect with our community, 
-            or wanting to make a difference, we're here for you.
+            There's a place for everyone to grow, serve, and connect at A.C.K. St. Stephen's Church.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Card 1 */}
-            <div className="bg-card rounded-lg p-6 shadow-card hover:shadow-lg transition-shadow duration-300 group">
-              <div className="w-12 h-12 bg-navy/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-gold/20 transition-colors duration-300">
-                <Calendar className="h-6 w-6 text-navy" />
+            {featuredMinistries.map((ministry) => (
+              <div
+                key={ministry.name}
+                className="bg-card rounded-lg p-6 shadow-card hover:shadow-lg transition-shadow duration-300 group"
+              >
+                <div className="w-12 h-12 bg-gold/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-gold/20 transition-colors duration-300">
+                  <ministry.icon className="h-6 w-6 text-gold" />
+                </div>
+                <h3 className="font-display text-xl text-foreground mb-2">{ministry.name}</h3>
+                <p className="text-muted-foreground text-sm mb-4 font-body">
+                  {ministry.description}
+                </p>
               </div>
-              <h3 className="font-display text-xl text-foreground mb-2">Upcoming Events</h3>
-              <p className="text-muted-foreground text-sm mb-4 font-body">
-                Join us for worship services, community gatherings, and special celebrations.
-              </p>
-              <Button variant="link" className="p-0 text-navy hover:text-gold">
-                View Calendar →
-              </Button>
-            </div>
+            ))}
+          </div>
 
-            {/* Card 2 */}
-            <div className="bg-card rounded-lg p-6 shadow-card hover:shadow-lg transition-shadow duration-300 group">
-              <div className="w-12 h-12 bg-navy/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-gold/20 transition-colors duration-300">
-                <Users className="h-6 w-6 text-navy" />
-              </div>
-              <h3 className="font-display text-xl text-foreground mb-2">Join a Group</h3>
-              <p className="text-muted-foreground text-sm mb-4 font-body">
-                Find your community through small groups, Bible studies, and fellowship.
-              </p>
-              <Button variant="link" className="p-0 text-navy hover:text-gold">
-                Find Groups →
+          <div className="text-center mt-10">
+            <Link to="/ministries">
+              <Button variant="outline" className="border-navy text-navy hover:bg-navy hover:text-primary-foreground">
+                View All Ministries →
               </Button>
-            </div>
-
-            {/* Card 3 */}
-            <div className="bg-card rounded-lg p-6 shadow-card hover:shadow-lg transition-shadow duration-300 group">
-              <div className="w-12 h-12 bg-navy/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-gold/20 transition-colors duration-300">
-                <Heart className="h-6 w-6 text-navy" />
-              </div>
-              <h3 className="font-display text-xl text-foreground mb-2">Give & Serve</h3>
-              <p className="text-muted-foreground text-sm mb-4 font-body">
-                Make a difference in our community through volunteering and generous giving.
-              </p>
-              <Button variant="link" className="p-0 text-navy hover:text-gold">
-                Get Involved →
-              </Button>
-            </div>
-
-            {/* Card 4 */}
-            <div className="bg-card rounded-lg p-6 shadow-card hover:shadow-lg transition-shadow duration-300 group">
-              <div className="w-12 h-12 bg-navy/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-gold/20 transition-colors duration-300">
-                <BookOpen className="h-6 w-6 text-navy" />
-              </div>
-              <h3 className="font-display text-xl text-foreground mb-2">Learn More</h3>
-              <p className="text-muted-foreground text-sm mb-4 font-body">
-                Explore our beliefs, mission, and the history of our faith community.
-              </p>
-              <Button variant="link" className="p-0 text-navy hover:text-gold">
-                Our Story →
-              </Button>
-            </div>
+            </Link>
           </div>
         </div>
       </section>
