@@ -1,35 +1,41 @@
 import TopInfoBar from "@/components/TopInfoBar";
 import MainNavbar from "@/components/MainNavbar";
-import { Users, Heart, Music, BookOpen, Baby, Leaf } from "lucide-react";
+import { Music, BookOpen, Baby } from "lucide-react";
 
 const ministries = [
   {
-    name: "Men's Fellowship",
+    name: "KAMA",
+    subtitle: "Kenya Anglican Men's Association",
     description: "A community of men dedicated to spiritual growth, accountability, and service to God and family.",
-    icon: Users,
+    logo: "/images/ministries/kama-logo.png",
   },
   {
-    name: "Women's Guild",
+    name: "Mothers Union",
+    subtitle: "Christian Care for Families",
     description: "Empowering women through fellowship, prayer, and community outreach programs.",
-    icon: Heart,
+    logo: "/images/ministries/mothers-union-logo.png",
   },
   {
-    name: "Youth Ministry",
+    name: "KAYO",
+    subtitle: "Youth Ministry",
     description: "Engaging young people in faith, leadership development, and meaningful community service.",
-    icon: Leaf,
+    logo: "/images/ministries/kayo-logo.png",
   },
   {
     name: "Children's Ministry",
+    subtitle: "",
     description: "Nurturing the faith of our youngest members through age-appropriate teaching and activities.",
     icon: Baby,
   },
   {
-    name: "Choir & Music Ministry",
+    name: "Daughters of Zion",
+    subtitle: "Choir & Music Ministry",
     description: "Leading worship through music and song, glorifying God in every service.",
     icon: Music,
   },
   {
     name: "Bible Study Groups",
+    subtitle: "",
     description: "Small groups dedicated to studying God's Word and growing together in faith.",
     icon: BookOpen,
   },
@@ -58,15 +64,22 @@ const Ministries = () => {
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {ministries.map((ministry, index) => (
+            {ministries.map((ministry) => (
               <div
                 key={ministry.name}
                 className="bg-card border border-border rounded-lg p-6 hover:shadow-lg transition-shadow duration-300 group"
               >
-                <div className="w-14 h-14 bg-gold/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-gold/20 transition-colors">
-                  <ministry.icon className="w-7 h-7 text-gold" />
+                <div className="w-16 h-16 bg-muted/30 rounded-full flex items-center justify-center mb-4 group-hover:bg-muted/50 transition-colors overflow-hidden">
+                  {ministry.logo ? (
+                    <img src={ministry.logo} alt={`${ministry.name} logo`} className="w-14 h-14 object-contain" />
+                  ) : ministry.icon ? (
+                    <ministry.icon className="w-8 h-8 text-gold" />
+                  ) : null}
                 </div>
-                <h3 className="font-display text-xl text-foreground mb-2">{ministry.name}</h3>
+                <h3 className="font-display text-xl text-foreground mb-1">{ministry.name}</h3>
+                {ministry.subtitle && (
+                  <p className="text-gold text-xs font-medium mb-2">{ministry.subtitle}</p>
+                )}
                 <p className="text-muted-foreground font-body">{ministry.description}</p>
               </div>
             ))}
