@@ -5,6 +5,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { Cross } from "lucide-react";
 
 interface LeaderCardProps {
   image: string;
@@ -13,17 +14,27 @@ interface LeaderCardProps {
 }
 
 const LeaderCard = ({ image, name, role }: LeaderCardProps) => (
-  <div className="bg-card rounded-lg overflow-hidden shadow-card hover:shadow-lg transition-shadow duration-300 group">
-    <div className="aspect-[3/4] overflow-hidden">
-      <img
-        src={image}
-        alt={name}
-        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-      />
+  <div className="relative pt-5">
+    {/* Cross at top center */}
+    <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10">
+      <div className="bg-gold rounded-full p-1.5 shadow-md">
+        <Cross className="h-4 w-4 text-navy" />
+      </div>
     </div>
-    <div className="p-4 text-center">
-      <h4 className="font-display text-lg text-foreground">{name}</h4>
-      <p className="text-muted-foreground text-sm font-body">{role}</p>
+    
+    {/* Framed card with gold border */}
+    <div className="bg-card rounded-lg overflow-hidden shadow-card hover:shadow-lg transition-shadow duration-300 group border-2 border-gold">
+      <div className="aspect-[3/4] overflow-hidden">
+        <img
+          src={image}
+          alt={name}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+        />
+      </div>
+      <div className="p-4 text-center">
+        <h4 className="font-display text-lg text-foreground">{name}</h4>
+        <p className="text-muted-foreground text-sm font-body">{role}</p>
+      </div>
     </div>
   </div>
 );
