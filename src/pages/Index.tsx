@@ -1,9 +1,12 @@
+import { useState, useEffect } from "react";
 import TopInfoBar from "@/components/TopInfoBar";
 import MainNavbar from "@/components/MainNavbar";
 import HeroSection from "@/components/HeroSection";
 import { Button } from "@/components/ui/button";
-import { Music } from "lucide-react";
+import { Music, BookOpen } from "lucide-react";
 import { Link } from "react-router-dom";
+import { fetchAllSermons, Sermon } from "@/lib/sermonLoader";
+import { format } from "date-fns";
 
 const featuredMinistries = [
   {
@@ -33,6 +36,16 @@ const featuredMinistries = [
 ];
 
 const Index = () => {
+  const [latestSermon, setLatestSermon] = useState<Sermon | null>(null);
+
+  useEffect(() => {
+    fetchAllSermons().then((sermons) => {
+      if (sermons.length > 0) {
+        setLatestSermon(sermons[0]);
+      }
+    });
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Top Info Bar */}
@@ -88,27 +101,30 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Call to Action Section */}
+      {/* Sermon Notes Section */}
       <section className="py-16 md:py-24 bg-navy relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 left-0 w-64 h-64 bg-gold rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
           <div className="absolute bottom-0 right-0 w-96 h-96 bg-gold rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
         </div>
         <div className="container mx-auto px-4 text-center relative z-10">
-          <h2 className="font-display text-3xl md:text-4xl text-primary-foreground mb-4">
-            Join Us This Sunday
+          <BookOpen className="h-12 w-12 text-gold mx-auto mb-4" />
+          <h2 className="font-display text-3xl md:text-4xl text-primary-foreground mb-2">
+            Missed a <span className="text-gold italic">Service?</span>
           </h2>
-          <p className="text-primary-foreground/80 mb-8 max-w-xl mx-auto font-body">
-            Experience the warmth of our community.
+          <p className="text-primary-foreground/80 mb-6 max-w-xl mx-auto font-body">
+            Check out notes from our previous sermons
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          {latestSermon && (
+            <p className="text-gold/90 text-sm mb-6 font-body">
+              Latest: <span className="italic">{latestSermon.theme}</span> — {format(new Date(latestSermon.date), "MMMM d, yyyy")}
+            </p>
+          )}
+          <Link to="/sermons">
             <Button variant="gold" size="lg">
-              Plan Your Visit
+              View Sermon Notes
             </Button>
-            <Button variant="goldOutline" size="lg">
-              Watch Online
-            </Button>
-          </div>
+          </Link>
         </div>
       </section>
 
