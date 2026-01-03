@@ -24,6 +24,7 @@ const navItems = [
   },
   { label: "Ministries", href: "/ministries" },
   { label: "Leadership", href: "/leadership" },
+  { label: "Sermon Notes", href: "/sermons" },
   { label: "Newsletters", href: "/newsletters" },
 ];
 
