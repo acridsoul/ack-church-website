@@ -116,9 +116,16 @@ const SermonDetail = () => {
         return <div key={index} className="h-2" />;
       }
       // Regular paragraphs
+      const parts = line.split(/(\*\*.*?\*\*)/);
       return (
         <p key={index} className="font-body text-foreground/90 mb-2">
-          {line}
+          {parts.map((part, i) =>
+            part.startsWith("**") && part.endsWith("**") ? (
+              <strong key={i}>{part.slice(2, -2)}</strong>
+            ) : (
+              part
+            )
+          )}
         </p>
       );
     });
