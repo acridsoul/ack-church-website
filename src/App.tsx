@@ -8,6 +8,7 @@ import Leadership from "./pages/Leadership";
 import Ministries from "./pages/Ministries";
 import SermonNotes from "./pages/SermonNotes";
 import SermonDetail from "./pages/SermonDetail";
+import PrayerCells from "./pages/PrayerCells";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/ministries" element={<Ministries />} />
           <Route path="/sermons" element={<SermonNotes />} />
           <Route path="/sermons/:id" element={<SermonDetail />} />
+          <Route path="/prayer-cells" element={<PrayerCells />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -25,7 +25,7 @@ const navItems = [
   { label: "Ministries", href: "/ministries" },
   { label: "Leadership", href: "/leadership" },
   { label: "Sermon Notes", href: "/sermons" },
-  { label: "Newsletters", href: "/newsletters" },
+  { label: "Prayer Cells", href: "/prayer-cells" },
 ];
 
 const MainNavbar = () => {
