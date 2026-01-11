@@ -13,15 +13,7 @@ import {
 
 const navItems = [
   { label: "Home", href: "/" },
-  {
-    label: "About",
-    href: "/about",
-    children: [
-      { label: "Our History", href: "/about/history" },
-      { label: "Our Mission", href: "/about/mission" },
-      { label: "Our Vision", href: "/about/vision" },
-    ],
-  },
+  { label: "Notices/Announcements", href: "/notices-announcements" },
   { label: "Ministries", href: "/ministries" },
   { label: "Leadership", href: "/leadership" },
   { label: "Sermon Notes", href: "/sermons" },
