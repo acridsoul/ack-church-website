@@ -38,7 +38,7 @@ interface SermonIndex {
 }
 
 const parseFrontmatter = (rawContent: string): { data: SermonFrontmatter; content: string } => {
-  const frontmatterRegex = /^---\n([\s\S]*?)\n---/;
+  const frontmatterRegex = /^---\r?\n([\s\S]*?)\r?\n---/;
   const match = rawContent.match(frontmatterRegex);
   
   if (match) {

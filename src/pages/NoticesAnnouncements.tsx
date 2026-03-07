@@ -26,7 +26,7 @@ const NoticesAnnouncements = () => {
             Stay informed with the latest church notices and announcements
           </p>
           <p className="text-gold/90 text-sm mb-6 font-body">
-            Latest Update: <span className="italic">25th January 2026</span>
+            Latest Update: <span className="italic">7th March 2026</span>
           </p>
         </div>
       </section>
@@ -55,18 +55,10 @@ const NoticesAnnouncements = () => {
               <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto font-body">
                 Important notices and updates will be posted here.
               </p>
-              <div className="bg-card border border-border rounded-lg p-8 text-left min-h-[300px]">
-                <div className="space-y-4">
-                  <p className="font-body font-semibold text-foreground mb-4">
-                    25/01/2026 - Church elections for the leaders for next two year term
-                  </p>
-                  <ul className="space-y-3 font-body text-foreground/90 list-disc list-inside">
-                    <li>Confirmation classes already started<br />You can register with Lay Reader Damaris</li>
-                    <li>You are reminded to honor your development pledges that were made at the end of the year</li>
-                    <li>The church school is vacant. Interested persons should apply.<br />Interviews for applicants currently going on.</li>
-                    <li>We have a security guard in the church compound guarding the compound during the night From Monday To Sunday<br />(And also during the Sunday service)</li>
-                  </ul>
-                </div>
+              <div className="bg-card border border-border rounded-lg p-8 text-center min-h-[300px]">
+                <p className="text-muted-foreground font-body">
+                  No notices at the moment.
+                </p>
               </div>
             </div>
 
