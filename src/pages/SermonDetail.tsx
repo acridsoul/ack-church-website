@@ -265,9 +265,15 @@ const SermonDetail = () => {
                 {/* Download PDF */}
                 {sermon.englishService.pdfUrl && (
                   <div className="mt-6 pt-6 border-t border-border">
-                    <Button variant="outline" className="w-full">
-                      <Download className="w-4 h-4 mr-2" />
-                      Download PDF
+                    <Button asChild variant="goldOutline" className="w-full">
+                      <a
+                        href={sermon.englishService.pdfUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <Download className="w-4 h-4 mr-2" />
+                        View PDF
+                      </a>
                     </Button>
                   </div>
                 )}
@@ -333,9 +339,15 @@ const SermonDetail = () => {
                 {/* Download PDF */}
                 {sermon.kikuyuService.pdfUrl && (
                   <div className="mt-6 pt-6 border-t border-border">
-                    <Button variant="outline" className="w-full">
-                      <Download className="w-4 h-4 mr-2" />
-                      Download PDF
+                    <Button asChild variant="goldOutline" className="w-full">
+                      <a
+                        href={sermon.kikuyuService.pdfUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <Download className="w-4 h-4 mr-2" />
+                        View PDF
+                      </a>
                     </Button>
                   </div>
                 )}
