@@ -78,12 +78,41 @@ kikuyuService:
 
 The body must contain the two headings exactly: `## English Service Notes` and `## Kikuyu Service Notes`. Notes support a simple markdown subset rendered by `renderMarkdown()` in `SermonDetail.tsx`: headings (`##`, `###`), blockquotes (`>`), unordered lists (`-`), numbered lists (`1.`), and bold (`**text**`).
 
+**Canonical body format** — every sermon body must follow this shape (note the pattern of bold labels then the `###` heading before the notes):
+
+```
+## English Service Notes
+
+**Preacher:** <name>
+**Bible Verses:** <all verses joined with commas>
+**Theme:** <theme text, omit this line if theme is empty>
+### Sermon Notes
+
+<notes content>
+```
+
+```
+## Kikuyu Service Notes
+
+**Mũrutani:** <name>
+**Gũthoma Ibuku:** <all verses joined with commas>
+**Theme:** <theme text, omit this line if theme is empty>
+### Maandĩko ma Ũhoro
+
+<notes content>
+```
+
 **To add a new sermon:**
 1. Copy `TEMPLATE.md`, name it `YYYY-MM-DD.md`, fill in frontmatter and notes.
 2. Add the filename to the `sermons` array in `index.json` (newest first).
 3. Commit both files.
 
 **Troubleshooting:** If a sermon doesn't appear, check that the filename is in `index.json`, the file exists in `public/content/sermons/`, and the YAML frontmatter is valid (no tabs, correct indentation, `bibleVerses` must be an array even if empty: `[]`).
+
+## Branding
+
+- **Page title and meta tags** — set in `index.html`. Title: `ACK St Stephen's Church`.
+- **Favicon** — `public/favicon.svg` (gold cross, no background). Modern browsers support SVG favicons directly.
 
 ## PDF files
 
