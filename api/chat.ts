@@ -102,9 +102,38 @@ const readBody = (req: IncomingMessage): Promise<string> =>
     req.on("error", reject);
   });
 
+/**
+ * DeepSeek enables thinking mode by default, and its reasoning tokens count
+ * against `max_tokens`. With the short budget below, the reasoning would consume
+ * the whole allowance and return empty content — every question would fail. Other
+ * OpenAI-compatible providers reject or ignore an unknown `thinking` field, so we
+ * only send it for DeepSeek, and `LLM_THINKING` overrides either way.
+ */
+const resolveThinking = (base: string): "enabled" | "disabled" | undefined => {
+  const override = (process.env.LLM_THINKING ?? "auto").trim().toLowerCase();
+  if (override === "enabled" || override === "disabled") return override;
+  return base.includes("deepseek") ? "disabled" : undefined;
+};
+
 const callProvider = async (question: string, contextBlock: string): Promise<string> => {
   const base = (process.env.LLM_BASE_URL || "https://api.openai.com/v1").replace(/\/+$/, "");
   const model = process.env.LLM_MODEL || "gpt-4o-mini";
+
+  const body: Record<string, unknown> = {
+    model,
+    messages: [
+      { role: "system", content: SYSTEM_PROMPT },
+      {
+        role: "user",
+        content: `Archive extracts:\n\n${contextBlock}\n\n---\n\nVisitor's question: ${question}`,
+      },
+    ],
+    max_tokens: 400,
+    temperature: 0.2,
+  };
+
+  const thinking = resolveThinking(base);
+  if (thinking) body.thinking = { type: thinking };
 
   const response = await fetch(`${base}/chat/completions`, {
     method: "POST",
@@ -112,18 +141,7 @@ const callProvider = async (question: string, contextBlock: string): Promise<str
       "Content-Type": "application/json",
       Authorization: `Bearer ${process.env.LLM_API_KEY}`,
     },
-    body: JSON.stringify({
-      model,
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        {
-          role: "user",
-          content: `Archive extracts:\n\n${contextBlock}\n\n---\n\nVisitor's question: ${question}`,
-        },
-      ],
-      max_tokens: 400,
-      temperature: 0.2,
-    }),
+    body: JSON.stringify(body),
   });
 
   if (!response.ok) {

@@ -66,6 +66,7 @@ interface ProviderCall {
     messages: Array<{ role: string; content: string }>;
     max_tokens: number;
     temperature: number;
+    thinking?: { type: string };
   };
 }
 
@@ -211,6 +212,44 @@ describe("api/chat behaviour", () => {
   it("tells the model when there is no context", async () => {
     await invoke("POST", { question: "anything", context: [] });
     expect(providerCalls[0].body.messages[1].content).toContain("no extracts");
+  });
+
+  /*
+   * DeepSeek defaults thinking mode ON and bills reasoning tokens against
+   * max_tokens, so with a short budget the reasoning would consume the whole
+   * allowance and return empty content. These lock in the fix.
+   */
+  describe("thinking mode", () => {
+    it("disables thinking for DeepSeek, whose default would starve max_tokens", async () => {
+      process.env.LLM_BASE_URL = "https://api.deepseek.com";
+      process.env.LLM_MODEL = "deepseek-flash";
+      delete process.env.LLM_THINKING;
+
+      const result = await invoke("POST", validBody);
+
+      expect(result.status).toBe(200);
+      expect(providerCalls[0].url).toBe("https://api.deepseek.com/chat/completions");
+      expect(providerCalls[0].body.model).toBe("deepseek-flash");
+      expect(providerCalls[0].body.thinking).toEqual({ type: "disabled" });
+    });
+
+    it("sends no thinking field to other OpenAI-compatible providers", async () => {
+      delete process.env.LLM_THINKING;
+      await invoke("POST", validBody);
+      expect(providerCalls[0].body.thinking).toBeUndefined();
+    });
+
+    it("honours an explicit override either way", async () => {
+      process.env.LLM_BASE_URL = "https://api.deepseek.com";
+      process.env.LLM_THINKING = "enabled";
+      await invoke("POST", validBody);
+      expect(providerCalls[0].body.thinking).toEqual({ type: "enabled" });
+
+      process.env.LLM_BASE_URL = "https://api.openai.com/v1";
+      process.env.LLM_THINKING = "disabled";
+      await invoke("POST", validBody);
+      expect(providerCalls.at(-1)?.body.thinking).toEqual({ type: "disabled" });
+    });
   });
 
   it("reports a provider failure as 502", async () => {

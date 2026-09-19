@@ -209,13 +209,31 @@ Set these as environment variables where `api/chat.ts` runs (see [`.env.example`
 |:---|:---|:---|
 | `LLM_API_KEY` | Yes | Without it `/api/chat` returns 503 and the page falls back. |
 | `LLM_BASE_URL` | No | Any OpenAI-compatible endpoint. Default `https://api.openai.com/v1`, which also covers OpenRouter, Groq, Together, DeepSeek and Gemini's OpenAI-compatible endpoint. Anthropic's native API is not OpenAI-shaped and would need an adapter. |
-| `LLM_MODEL` | No | Default `gpt-4o-mini`. |
+| `LLM_MODEL` | No | Default `gpt-4o-mini`. For DeepSeek use `deepseek-flash` (or `deepseek-v4-pro`); the older `deepseek-chat` / `deepseek-reasoner` names are retired legacy aliases. |
+| `LLM_THINKING` | No | `auto` by default: disables thinking mode for DeepSeek, sends nothing to other providers. See the note below. |
 | `ALLOWED_ORIGINS` | No | Comma-separated. Leave empty when the site and the API share an origin. |
 | `CHAT_RATE_LIMIT` | No | Requests per minute per IP. Best effort, per serverless instance. |
 | `CHAT_MAX_QUESTION_CHARS` | No | Default 500. |
 | `VITE_CHAT_API_URL` | No | Client-side. Only needed when the API is on a different origin. Defaults to `/api/chat`. |
 
 > **Never prefix a secret with `VITE_`.** Vite inlines every `VITE_*` variable into the browser bundle, so a `VITE_LLM_API_KEY` would hand your key to every visitor. `LLM_*` variables are read only inside the serverless function.
+
+#### Using DeepSeek
+
+[DeepSeek](https://api-docs.deepseek.com/) speaks the OpenAI format, so it needs configuration only:
+
+| Variable | Value |
+|:---|:---|
+| `LLM_API_KEY` | your key from [platform.deepseek.com/api_keys](https://platform.deepseek.com/api_keys) |
+| `LLM_BASE_URL` | `https://api.deepseek.com` |
+| `LLM_MODEL` | `deepseek-flash` |
+
+Two DeepSeek specifics worth knowing:
+
+- **Use `deepseek-flash`, not `deepseek-chat`.** The current models are [`deepseek-flash` and `deepseek-v4-pro`](https://api-docs.deepseek.com/quick_start/pricing); the older `deepseek-chat` / `deepseek-reasoner` names are retired legacy aliases.
+- **Thinking mode is turned off for you.** DeepSeek enables thinking mode by default and counts its reasoning tokens against `max_tokens` ([API reference](https://api-docs.deepseek.com/api/create-chat-completion)), so reasoning would consume this function's short answer budget and return empty content. `LLM_THINKING=auto` recognises a DeepSeek base URL and disables it. Set `LLM_THINKING=enabled` only if you also raise `max_tokens` substantially.
+
+At `deepseek-flash` off-peak rates a question costs well under a tenth of a cent: a few thousand tokens of context plus a short answer.
 
 ### Deploying the chat backend
 
