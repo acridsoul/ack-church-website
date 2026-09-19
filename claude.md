@@ -10,7 +10,9 @@ ACK (Anglican Church of Kenya) church website — a content-driven static site b
 
 ```sh
 npm run dev        # Start dev server on port 8080 (http://localhost:8080)
-npm run build      # Production build
+npm run build      # Type-check (tsc -b) then production build
+npm run build:dev  # Type-check then unminified development build
+npm run typecheck  # tsc -b only, no bundle output
 npm run preview    # Preview production build locally
 npm run lint       # ESLint across the project
 ```
@@ -32,13 +34,16 @@ There are no tests. The site is deployed via Lovable (the project origin).
 | `/notices-announcements` | `NoticesAnnouncements.tsx` |
 | `*` | `NotFound.tsx` |
 
-**Layout shell** — Every page includes `<TopInfoBar />` + `<MainNavbar />` at the top.
+**Layout shell** — Every page includes `<TopInfoBar />` + `<MainNavbar />` at the top. The inner pages (`Leadership`, `Ministries`, `PrayerCells`, `NoticesAnnouncements`) share `<SiteFooter />`; `Index.tsx` has its own richer footer.
 
 **Content pipeline** — `src/lib/sermonLoader.ts` is the data layer:
-1. `fetchSermonIndex()` → fetches `/public/content/sermons/index.json` (a `sermons: string[]` of filenames).
+1. `fetchSermonIndex()` → fetches `/content/sermons/index.json` (a `sermons: string[]` of filenames).
 2. `fetchSermon(filename)` → fetches the `.md` file, parses YAML frontmatter with `js-yaml`, then splits the body on `## English Service Notes` / `## Kikuyu Service Notes` headings.
 3. `fetchAllSermons()` → loads all sermons sorted by date descending.
 4. `fetchSermonById(id)` → loads a single sermon by its filename stem (`YYYY-MM-DD`).
+5. Filter helpers used by `SermonNotes.tsx`: `getAvailableYears()` / `getSermonsByYear()` and `getAvailableMonths()` / `getSermonsByMonth()`.
+
+> **Sermon dates are date-only.** Never do `new Date(sermon.date)` — `"YYYY-MM-DD"` parses as UTC midnight, so any timezone behind UTC reports the previous day, and occasionally the previous month or year. Use `getSermonDateParts()` for filtering and `toSermonDate()` for display; both read the parts directly and are timezone-safe.
 
 **Theming** — Navy & Gold palette defined as CSS custom properties in `src/index.css` under `@layer base { :root { … } .dark { … } }`. Key utility classes: `.bg-navy`, `.bg-gold`, `.text-gold`, `.text-navy`, `.border-gold`, `.text-gradient-gold`. Fonts: Playfair Display (headings) and Open Sans (body), loaded from `@fontsource`.
 
