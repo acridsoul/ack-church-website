@@ -21,6 +21,10 @@ The site serves as a visitor-first spiritual home, a weekly liturgical bulletin,
 - [Content Architecture & Sermon Pipeline](#content-architecture--sermon-pipeline)
   - [How to Author & Publish a Sermon](#how-to-author--publish-a-sermon)
   - [Canonical Sermon Format](#canonical-sermon-format)
+- [Ask the Archive (Sermon Chatbot)](#ask-the-archive-sermon-chatbot)
+  - [How a question is answered](#how-a-question-is-answered)
+  - [Enabling the AI answers](#enabling-the-ai-answers)
+  - [Deploying the chat backend](#deploying-the-chat-backend)
 - [Tech Stack](#tech-stack)
 - [Project Directory Structure](#project-directory-structure)
 - [Getting Started](#getting-started)
@@ -65,16 +69,20 @@ Worship takes place every Sunday across three distinct services catering to our 
    - Zero-backend static content pipeline loading Markdown with YAML frontmatter at runtime.
    - Dual-column reading experience pairing **English Service Notes** with **Kikuyu Service Notes (`Maandĩko ma Ũhoro`)**.
    - Filtering by year and by calendar month (chronological month pills, showing only the months the archive actually holds), with preacher names, scriptural readings, and optional PDF downloads shown on each entry.
-3. **Clergy & Lay Leadership Showcase (`/leadership`)**:
+3. **Ask the Archive — sermon chatbot (`/ask`)**:
+   - Answers from the archive itself: the Bible readings, the preacher, and the theme for any Sunday, then offers the sermon notes.
+   - Understands dates and Sunday names in many shapes (`19 July`, `2026-07-19`, `7th Sunday After Trinity`, `trinity 7`, `talent sunday`) and normalises the archive's inconsistent preacher names onto one person.
+   - Open-ended questions are answered by an LLM behind a Vercel function. The page works fully without it — see [Ask the Archive](#ask-the-archive-sermon-chatbot).
+4. **Clergy & Lay Leadership Showcase (`/leadership`)**:
    - Vicar In Charge spotlight with framed portrait.
    - Interactive carousel of licensed parish Lay Readers: Margaret, Consolata, Lydia, Francis, and Damaris.
-4. **Parish Ministries Matrix (`/ministries`)**:
+5. **Parish Ministries Matrix (`/ministries`)**:
    - Comprehensive directory for **KAMA** (Kenya Anglican Men's Association), **Mothers Union** (Christian Care for Families), **KAYO** (Youth Ministry), **Children's Ministry (Sunday School)**, **Daughters of Zion (Choir)**, and **Bible Study Groups**.
-5. **Kanisa Mashinani / Home Prayer Cells (`/prayer-cells`)**:
+6. **Kanisa Mashinani / Home Prayer Cells (`/prayer-cells`)**:
    - Neighborhood fellowship groups for midweek intercession and discipleship: **Afilipi**, **Athesalonike**, **Jerusalem**, **Macedonia**, and **Berea**.
-6. **Parish Notices & Announcements (`/notices-announcements`)**:
+7. **Parish Notices & Announcements (`/notices-announcements`)**:
    - A notices and communication page with empty states ready to receive parish announcements. Content is added by hand; there is no notices data pipeline yet.
-7. **Parish Stewardship & Giving**:
+8. **Parish Stewardship & Giving**:
    - Guidance for tithes, offerings, thanksgiving, and church development projects rooted in 2 Corinthians 9:7.
 
 ---
@@ -168,6 +176,58 @@ kikuyuService:
 
 ---
 
+## Ask the Archive (Sermon Chatbot)
+
+`/ask` is a chat page over the sermon archive. Ask about a Sunday and it replies with the readings, the preacher and the theme, then offers the notes.
+
+```
+Visitor → /ask page (React)
+           ├─ resolveQuery() over fetchAllSermons()   ← always: local, exact, free
+           ├─ structured answer + "show the notes?"   ← always
+           └─ POST /api/chat {question, context}      ← only for open-ended questions
+                    └─ Vercel Function → LLM API       (the API key lives here)
+```
+
+### How a question is answered
+
+The deterministic layer in [`src/lib/sermonQuery.ts`](src/lib/sermonQuery.ts) does the work, so the core flow needs no API key, no network and no cost:
+
+1. **Preacher names are normalised.** The archive records the same people many ways — `Vicar Henry Kinyua`, `Rev Henry`, `Vicar`, and `L/R Kungu` / `Lay Reader Kungu` / `Lay Reader Francis Kungu`. An explicit alias table maps them onto one canonical name. It is hand-written on purpose: `Veronica Nyokabi` and `Esther Nyokabi` are different people, so names are never merged by surname.
+2. **Dates are parsed in many shapes** — ISO, `19/07/2026`, `19 July`, `July 19`, `latest` — always through `getSermonDateParts`, never `new Date(string)` (see the field notes above).
+3. **Sunday names are matched by token**, so `7th Sunday After Trinity`, `seventh sunday after trinity` and `trinity 7` all land on the same entry, and an exact match beats a longer name that merely contains it.
+4. **Ambiguity is surfaced, not guessed.** `lent` matches five Sundays, so the bot lists them and asks which one; `trinity` names one entry exactly, so it answers.
+
+Anything this layer cannot place is escalated to the LLM, which receives the matched sermon (or keyword-retrieved extracts) as its only source, plus instructions never to invent scripture text, preachers, themes or dates.
+
+### Enabling the AI answers
+
+The deterministic layer answers every structured question on its own. The LLM only adds narrative for open-ended ones, such as *"what did the vicar say about stewardship?"*. Without it, those questions still get the structured answer plus a note that the reading assistant is unavailable — the page never errors.
+
+Set these as environment variables where `api/chat.ts` runs (see [`.env.example`](.env.example)):
+
+| Variable | Required | Notes |
+|:---|:---|:---|
+| `LLM_API_KEY` | Yes | Without it `/api/chat` returns 503 and the page falls back. |
+| `LLM_BASE_URL` | No | Any OpenAI-compatible endpoint. Default `https://api.openai.com/v1`, which also covers OpenRouter, Groq, Together, DeepSeek and Gemini's OpenAI-compatible endpoint. Anthropic's native API is not OpenAI-shaped and would need an adapter. |
+| `LLM_MODEL` | No | Default `gpt-4o-mini`. |
+| `ALLOWED_ORIGINS` | No | Comma-separated. Leave empty when the site and the API share an origin. |
+| `CHAT_RATE_LIMIT` | No | Requests per minute per IP. Best effort, per serverless instance. |
+| `CHAT_MAX_QUESTION_CHARS` | No | Default 500. |
+| `VITE_CHAT_API_URL` | No | Client-side. Only needed when the API is on a different origin. Defaults to `/api/chat`. |
+
+> **Never prefix a secret with `VITE_`.** Vite inlines every `VITE_*` variable into the browser bundle, so a `VITE_LLM_API_KEY` would hand your key to every visitor. `LLM_*` variables are read only inside the serverless function.
+
+### Deploying the chat backend
+
+Vercel deploys a root `api/` directory as serverless functions, so `api/chat.ts` is served as `POST /api/chat` alongside the static build.
+
+- **Recommended — host the whole site on Vercel.** Import the repository, set `LLM_API_KEY`, and deploy. [`vercel.json`](vercel.json) rewrites every non-`/api` path to `/index.html` so client routes such as `/sermons/2026-07-19` survive a direct hit or refresh. This moves publishing off Lovable.
+- **Keep Lovable for the frontend.** Deploy the same repository to Vercel for the function only, set `ALLOWED_ORIGINS` to the Lovable domain, and set `VITE_CHAT_API_URL` to the Vercel URL. No code changes either way.
+
+`vercel dev` runs the static site and the function together locally.
+
+---
+
 ## Tech Stack
 
 | Layer | Technology | Purpose |
@@ -182,6 +242,8 @@ kikuyuService:
 | **Content Parser** | `js-yaml` | In-browser parsing of YAML frontmatter from `.md` files |
 | **Date Utilities** | `date-fns` | Calendar date formatting for sermon listings |
 | **Data Fetching** | `@tanstack/react-query` | Query client caching and lifecycle management |
+| **Testing** | Vitest | Unit tests for the query layer and the chat function (`npm test`) |
+| **Chat backend** | Vercel Function (Node) | `api/chat.ts` holds the LLM key; see [Ask the Archive](#ask-the-archive-sermon-chatbot) |
 
 ---
 
@@ -212,10 +274,13 @@ ack-church-website/
 │   │   ├── VicarWelcomeSection.tsx   # Pastoral message from Rev. Henry Kinyua
 │   │   ├── LatestSermonSpotlight.tsx # Dynamic latest sermon feature
 │   │   ├── ChurchLeadersSection.tsx  # Clergy and lay readers carousel
+│   │   ├── SermonNotesBody.tsx       # Shared sermon-notes markdown renderer
 │   │   └── SiteFooter.tsx            # Shared footer used by the inner pages
-│   ├── hooks/                # Mobile and toast utility hooks
+│   ├── hooks/                # use-mobile, use-toast, and useSermons (React Query)
 │   ├── lib/
 │   │   ├── sermonLoader.ts   # Core data pipeline: fetches and parses sermons
+│   │   ├── sermonQuery.ts    # Chatbot query layer: aliases, dates, names, intents
+│   │   ├── askApi.ts         # Best-effort client for /api/chat
 │   │   └── utils.ts          # Tailwind merge & className utility
 │   ├── pages/
 │   │   ├── Index.tsx         # Modern visitor-first homepage
@@ -223,13 +288,18 @@ ack-church-website/
 │   │   ├── Ministries.tsx    # Parish ministries directory
 │   │   ├── SermonNotes.tsx   # All sermon notes with year + month filters
 │   │   ├── SermonDetail.tsx  # Bilingual side-by-side sermon reading view
+│   │   ├── AskSermons.tsx    # Ask the Archive sermon chatbot
 │   │   ├── PrayerCells.tsx   # Kanisa Mashinani home prayer cells
 │   │   ├── NoticesAnnouncements.tsx # Parish announcements
 │   │   └── NotFound.tsx      # 404 handler
 │   ├── App.tsx               # Root component with router definitions
 │   ├── index.css             # HSL CSS theme custom properties
 │   └── main.tsx              # Application entry point
+├── api/
+│   └── chat.ts               # Vercel function: the only holder of the LLM key
 ├── tailwind.config.ts        # Custom colors (navy, gold, cream) and font families
+├── vercel.json               # SPA rewrites so client routes survive a refresh
+├── .env.example              # Documented environment variables (no secrets)
 ├── vite.config.ts            # Vite bundler configuration
 ├── eslint.config.js          # ESLint flat config
 ├── components.json           # shadcn/ui generator configuration
@@ -270,6 +340,8 @@ ack-church-website/
 | `npm run build` | Type-checks with `tsc -b`, then creates an optimized production bundle in `dist/` |
 | `npm run build:dev` | Type-checks, then builds in development mode (unminified) |
 | `npm run typecheck` | Runs `tsc -b` only, with no bundle output |
+| `npm test` | Runs the Vitest suite once (query layer, chat client, and the `api/chat` handler) |
+| `npm run test:watch` | Runs Vitest in watch mode |
 | `npm run preview` | Starts a local web server to preview the production build output |
 | `npm run lint` | Runs ESLint across all TypeScript and React files |
 

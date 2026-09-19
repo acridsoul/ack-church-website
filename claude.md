@@ -13,11 +13,14 @@ npm run dev        # Start dev server on port 8080 (http://localhost:8080)
 npm run build      # Type-check (tsc -b) then production build
 npm run build:dev  # Type-check then unminified development build
 npm run typecheck  # tsc -b only, no bundle output
+npm test           # Vitest: query layer, chat client, api/chat handler
 npm run preview    # Preview production build locally
 npm run lint       # ESLint across the project
 ```
 
-There are no tests. The site is deployed via Lovable (the project origin).
+Tests live next to the code they cover (`src/lib/*.test.ts`). The `api/chat.ts` handler is tested from `src/lib/chatHandler.test.ts` on purpose — Vercel deploys every file in `api/` as a function, so a co-located test would become an endpoint.
+
+The site is deployed via Lovable (the project origin), or via Vercel when the `/ask` chatbot backend is enabled.
 
 ## Architecture
 
@@ -30,6 +33,7 @@ There are no tests. The site is deployed via Lovable (the project origin).
 | `/ministries` | `Ministries.tsx` |
 | `/sermons` | `SermonNotes.tsx` — list of all sermons |
 | `/sermons/:id` | `SermonDetail.tsx` — single sermon detail |
+| `/ask` | `AskSermons.tsx` — sermon chatbot |
 | `/prayer-cells` | `PrayerCells.tsx` |
 | `/notices-announcements` | `NoticesAnnouncements.tsx` |
 | `*` | `NotFound.tsx` |
@@ -44,6 +48,15 @@ There are no tests. The site is deployed via Lovable (the project origin).
 5. Filter helpers used by `SermonNotes.tsx`: `getAvailableYears()` / `getSermonsByYear()` and `getAvailableMonths()` / `getSermonsByMonth()`.
 
 > **Sermon dates are date-only.** Never do `new Date(sermon.date)` — `"YYYY-MM-DD"` parses as UTC midnight, so any timezone behind UTC reports the previous day, and occasionally the previous month or year. Use `getSermonDateParts()` for filtering and `toSermonDate()` for display; both read the parts directly and are timezone-safe.
+
+**Sermon chatbot** — `/ask` is answered in two layers:
+
+1. `src/lib/sermonQuery.ts` — pure and deterministic, covered by `sermonQuery.test.ts`. `resolveQuery(text, sermons, context)` returns a `QueryResult` describing what to say. It canonicalises preacher names through an explicit alias table (**never merge by surname** — the archive holds two different Nyokabis), parses dates without `new Date(string)`, matches Sunday names by token so `trinity 7` finds `7th Sunday After Trinity`, and reports ambiguity instead of guessing.
+2. `api/chat.ts` — a Vercel function that holds the LLM key. It is consulted only when `QueryResult.escalate` is true (open-ended questions) and answers strictly from the extracts the client sends. `src/lib/askApi.ts` treats every failure as `null`, so the page degrades to the deterministic answer instead of showing an error.
+
+> **Never expose a secret to Vite.** Only `VITE_*` variables reach the browser bundle. The LLM key must stay on `LLM_API_KEY`, which only the function reads; a `VITE_LLM_API_KEY` would publish it to every visitor. See `.env.example`.
+
+Sermon notes must be rendered through `SermonNotesBody`, which `/sermons/:id` and the chatbot share, rather than a second markdown renderer.
 
 **Theming** — Navy & Gold palette defined as CSS custom properties in `src/index.css` under `@layer base { :root { … } .dark { … } }`. Key utility classes: `.bg-navy`, `.bg-gold`, `.text-gold`, `.text-navy`, `.border-gold`, `.text-gradient-gold`. Fonts: Playfair Display (headings) and Open Sans (body), loaded from `@fontsource`.
 
