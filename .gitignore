@@ -13,6 +13,14 @@ dist-ssr
 *.local
 *.tsbuildinfo
 
+# Local environment (never commit keys). .env.example is tracked on purpose.
+.env
+.env.*
+!.env.example
+
+# Vercel project link
+.vercel
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

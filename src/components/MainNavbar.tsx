@@ -15,6 +15,7 @@ const navItems = [
   { label: "Ministries", href: "/ministries" },
   { label: "Leadership", href: "/leadership" },
   { label: "Sermon Notes", href: "/sermons" },
+  { label: "Ask", href: "/ask" },
   { label: "Prayer Cells", href: "/prayer-cells" },
 ];
 

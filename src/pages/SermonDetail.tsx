@@ -2,6 +2,7 @@ import { useParams, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import TopInfoBar from "@/components/TopInfoBar";
 import MainNavbar from "@/components/MainNavbar";
+import SermonNotesBody from "@/components/SermonNotesBody";
 import { fetchSermonById, toSermonDate, Sermon } from "@/lib/sermonLoader";
 import { Calendar, User, BookOpen, ArrowLeft, Download, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -38,95 +39,6 @@ const SermonDetail = () => {
       day: "numeric",
       month: "long",
       year: "numeric",
-    });
-  };
-
-  const renderMarkdown = (content: string) => {
-    return content.split("\n").map((line, index) => {
-      // Headers
-      if (line.startsWith("### ")) {
-        return (
-          <h3
-            key={index}
-            className="font-display text-lg text-foreground mt-6 mb-2"
-          >
-            {line.replace("### ", "")}
-          </h3>
-        );
-      }
-      if (line.startsWith("## ")) {
-        return (
-          <h2
-            key={index}
-            className="font-display text-xl text-foreground mt-4 mb-3"
-          >
-            {line.replace("## ", "")}
-          </h2>
-        );
-      }
-      // Blockquotes
-      if (line.startsWith("> ")) {
-        return (
-          <blockquote
-            key={index}
-            className="border-l-4 border-gold pl-4 italic text-muted-foreground my-4 font-body"
-          >
-            {line.replace("> ", "")}
-          </blockquote>
-        );
-      }
-      // List items
-      if (line.startsWith("- ")) {
-        const content = line.replace("- ", "");
-        const parts = content.split(/(\*\*.*?\*\*)/);
-        return (
-          <li key={index} className="ml-4 font-body text-foreground/90">
-            {parts.map((part, i) =>
-              part.startsWith("**") && part.endsWith("**") ? (
-                <strong key={i}>{part.slice(2, -2)}</strong>
-              ) : (
-                part
-              )
-            )}
-          </li>
-        );
-      }
-      // Numbered lists
-      if (/^\d+\.\s/.test(line)) {
-        const content = line.replace(/^\d+\.\s/, "");
-        const parts = content.split(/(\*\*.*?\*\*)/);
-        return (
-          <li
-            key={index}
-            className="ml-4 list-decimal font-body text-foreground/90 mb-2"
-          >
-            {parts.map((part, i) =>
-              part.startsWith("**") && part.endsWith("**") ? (
-                <strong key={i}>{part.slice(2, -2)}</strong>
-              ) : (
-                part
-              )
-            )}
-          </li>
-        );
-      }
-      // Empty lines
-      if (line.trim() === "") {
-        return <div key={index} className="h-2" />;
-      }
-      // Regular paragraphs
-      const parts = line.split(/(\*\*.*?\*\*)/);
-      return (
-        <p key={index} className="font-body text-foreground/90 mb-2">
-          {parts.map((part, i) =>
-            part.startsWith("**") && part.endsWith("**") ? (
-              <strong key={i}>{part.slice(2, -2)}</strong>
-            ) : (
-              part
-            )
-          )}
-        </p>
-      );
     });
   };
 
@@ -256,9 +168,7 @@ const SermonDetail = () => {
                   <h3 className="text-xs text-muted-foreground uppercase tracking-wide font-body mb-4">
                     Sermon Notes
                   </h3>
-                  <div className="prose prose-sm max-w-none">
-                    {renderMarkdown(sermon.englishService.notes)}
-                  </div>
+                  <SermonNotesBody content={sermon.englishService.notes} />
                 </div>
 
                 {/* Download PDF */}
@@ -330,9 +240,7 @@ const SermonDetail = () => {
                   <h3 className="text-xs text-muted-foreground uppercase tracking-wide font-body mb-4">
                     Maandĩko ma Ũhoro
                   </h3>
-                  <div className="prose prose-sm max-w-none">
-                    {renderMarkdown(sermon.kikuyuService.notes)}
-                  </div>
+                  <SermonNotesBody content={sermon.kikuyuService.notes} />
                 </div>
 
                 {/* Download PDF */}

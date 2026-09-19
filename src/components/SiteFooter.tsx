@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 const quickLinks = [
   { label: "Home", href: "/" },
   { label: "Sermon Notes Archive", href: "/sermons" },
+  { label: "Ask the Archive", href: "/ask" },
   { label: "Clergy & Lay Leadership", href: "/leadership" },
   { label: "Parish Ministries", href: "/ministries" },
   { label: "Kanisa Mashinani (Prayer Cells)", href: "/prayer-cells" },
