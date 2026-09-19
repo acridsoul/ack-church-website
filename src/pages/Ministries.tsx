@@ -1,5 +1,6 @@
 import TopInfoBar from "@/components/TopInfoBar";
 import MainNavbar from "@/components/MainNavbar";
+import SiteFooter from "@/components/SiteFooter";
 import { Music, BookOpen, Baby } from "lucide-react";
 
 const ministries = [
@@ -104,57 +105,7 @@ const Ministries = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-navy text-primary-foreground py-12">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <img 
-                  src="/images/ack-diocese-logo.png" 
-                  alt="A.C.K. Diocese of Thika Logo" 
-                  className="h-12 w-auto"
-                />
-                <div>
-                  <h3 className="font-display text-lg">A.C.K. St. Stephen's Church</h3>
-                  <p className="text-sm text-primary-foreground/70">Gatuanyaga</p>
-                </div>
-              </div>
-              <p className="text-sm text-primary-foreground/70 font-body">
-                A.C.K. Diocese of Thika. United in Christ, serving our community with love and compassion.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-display text-lg mb-4">Quick Links</h4>
-              <ul className="space-y-2 text-sm font-body">
-                <li><a href="/" className="hover:text-gold transition-colors">Home</a></li>
-                <li><a href="/about" className="hover:text-gold transition-colors">About Us</a></li>
-                <li><a href="/ministries" className="hover:text-gold transition-colors">Ministries</a></li>
-                <li><a href="/events" className="hover:text-gold transition-colors">Events</a></li>
-                <li><a href="/leadership" className="hover:text-gold transition-colors">Leadership</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-display text-lg mb-4">Sunday Services</h4>
-              <ul className="space-y-2 text-sm font-body text-primary-foreground/70">
-                <li>7:00 AM - Express Service</li>
-                <li>8:30 AM - English Service</li>
-                <li>10:30 AM - Kikuyu Service</li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-display text-lg mb-4">Contact</h4>
-              <ul className="space-y-2 text-sm font-body text-primary-foreground/70">
-                <li>Gatuanyaga, Thika</li>
-                <li>info@ackststephensgatuanyaga.org</li>
-                <li>+254 XXX XXX XXX</li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-primary-foreground/20 mt-8 pt-8 text-center text-sm text-primary-foreground/60 font-body">
-            © {new Date().getFullYear()} A.C.K. St. Stephen's Church Gatuanyaga. All rights reserved.
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 };

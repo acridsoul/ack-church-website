@@ -2,7 +2,7 @@ import { useParams, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import TopInfoBar from "@/components/TopInfoBar";
 import MainNavbar from "@/components/MainNavbar";
-import { fetchSermonById, Sermon } from "@/lib/sermonLoader";
+import { fetchSermonById, toSermonDate, Sermon } from "@/lib/sermonLoader";
 import { Calendar, User, BookOpen, ArrowLeft, Download, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -33,8 +33,7 @@ const SermonDetail = () => {
   }, [id]);
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-GB", {
+    return toSermonDate(dateString).toLocaleDateString("en-GB", {
       weekday: "long",
       day: "numeric",
       month: "long",

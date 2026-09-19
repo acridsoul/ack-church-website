@@ -1,10 +1,19 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import TopInfoBar from "@/components/TopInfoBar";
 import MainNavbar from "@/components/MainNavbar";
-import { fetchAllSermons, getAvailableYears, getSermonsByYear, Sermon } from "@/lib/sermonLoader";
+import {
+  fetchAllSermons,
+  getAvailableMonths,
+  getAvailableYears,
+  getSermonsByMonth,
+  getSermonsByYear,
+  toSermonDate,
+  Sermon,
+} from "@/lib/sermonLoader";
 import { Calendar, User, BookOpen, ChevronRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -13,11 +22,38 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+const monthLabel = (month: number, style: "short" | "long") =>
+  new Date(2020, month, 1).toLocaleDateString("en-GB", { month: style });
+
+interface FilterPillProps {
+  active: boolean;
+  onClick: () => void;
+  children: ReactNode;
+}
+
+const FilterPill = ({ active, onClick, children }: FilterPillProps) => (
+  <button
+    type="button"
+    onClick={onClick}
+    aria-pressed={active}
+    className={cn(
+      "inline-flex items-center rounded-full border px-3.5 py-1 text-xs sm:text-sm font-semibold font-body transition-colors",
+      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+      active
+        ? "border-navy bg-navy text-cream shadow-sm"
+        : "border-border bg-transparent text-foreground/80 hover:border-gold/60 hover:bg-gold/5 hover:text-navy",
+    )}
+  >
+    {children}
+  </button>
+);
+
 const SermonNotes = () => {
   const [sermons, setSermons] = useState<Sermon[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedYear, setSelectedYear] = useState<string>("all");
+  const [selectedMonth, setSelectedMonth] = useState<number | "all">("all");
 
   useEffect(() => {
     const loadSermons = async () => {
@@ -35,14 +71,27 @@ const SermonNotes = () => {
   }, []);
 
   const availableYears = getAvailableYears(sermons);
+  // The year narrows first, so the month rail only offers months that year holds.
+  const sermonsInYear =
+    selectedYear === "all" ? sermons : getSermonsByYear(sermons, parseInt(selectedYear));
+  const availableMonths = getAvailableMonths(sermonsInYear);
   const filteredSermons =
-    selectedYear === "all"
-      ? sermons
-      : getSermonsByYear(sermons, parseInt(selectedYear));
+    selectedMonth === "all" ? sermonsInYear : getSermonsByMonth(sermonsInYear, selectedMonth);
+
+  const handleYearChange = (value: string) => {
+    setSelectedYear(value);
+    setSelectedMonth("all");
+  };
+
+  const activeFilter = [
+    selectedMonth === "all" ? null : monthLabel(selectedMonth, "long"),
+    selectedYear === "all" ? null : selectedYear,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-GB", {
+    return toSermonDate(dateString).toLocaleDateString("en-GB", {
       weekday: "long",
       day: "numeric",
       month: "long",
@@ -68,35 +117,75 @@ const SermonNotes = () => {
         </div>
       </section>
 
-      {/* Filter Section */}
-      <section className="py-6 border-b border-border">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between">
-            <p className="text-muted-foreground font-body">
-              Showing {filteredSermons.length} sermon
-              {filteredSermons.length !== 1 ? "s" : ""}
-            </p>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground font-body">
-                Filter by year:
+      {/* Filter Rail */}
+      {!loading && !error && sermons.length > 0 && (
+        <section className="py-6 border-b border-border bg-background">
+          <div className="container mx-auto px-4 space-y-4">
+            {/* Summary + coarse (year) filter */}
+            <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+              <p className="text-muted-foreground font-body text-sm sm:text-base">
+                Showing {filteredSermons.length} sermon
+                {filteredSermons.length !== 1 ? "s" : ""}
+                {activeFilter && (
+                  <span className="text-foreground font-semibold"> &middot; {activeFilter}</span>
+                )}
+              </p>
+              <div className="flex items-center gap-2">
+                <span
+                  id="year-filter-label"
+                  className="text-[11px] font-semibold uppercase tracking-wider text-gold font-body"
+                >
+                  Year
+                </span>
+                <Select value={selectedYear} onValueChange={handleYearChange}>
+                  <SelectTrigger className="w-32" aria-labelledby="year-filter-label">
+                    <SelectValue placeholder="All Years" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Years</SelectItem>
+                    {availableYears.map((year) => (
+                      <SelectItem key={year} value={year.toString()}>
+                        {year}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Month rail — chronological, only months the archive actually holds */}
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+              <span
+                id="month-filter-label"
+                className="text-[11px] font-semibold uppercase tracking-wider text-gold font-body"
+              >
+                Month
               </span>
-              <Select value={selectedYear} onValueChange={setSelectedYear}>
-                <SelectTrigger className="w-32">
-                  <SelectValue placeholder="All Years" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Years</SelectItem>
-                  {availableYears.map((year) => (
-                    <SelectItem key={year} value={year.toString()}>
-                      {year}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div
+                role="group"
+                aria-labelledby="month-filter-label"
+                className="flex flex-wrap items-center gap-2"
+              >
+                <FilterPill
+                  active={selectedMonth === "all"}
+                  onClick={() => setSelectedMonth("all")}
+                >
+                  All
+                </FilterPill>
+                {availableMonths.map((month) => (
+                  <FilterPill
+                    key={month}
+                    active={selectedMonth === month}
+                    onClick={() => setSelectedMonth(month)}
+                  >
+                    {monthLabel(month, "short")}
+                  </FilterPill>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Loading State */}
       {loading && (
@@ -204,8 +293,11 @@ const SermonNotes = () => {
 
             {filteredSermons.length === 0 && (
               <div className="text-center py-12">
+                <Calendar className="w-8 h-8 mx-auto text-muted-foreground/40 mb-3" />
                 <p className="text-muted-foreground font-body">
-                  No sermons found for the selected year.
+                  {sermons.length === 0
+                    ? "No sermon notes have been published yet."
+                    : "No sermon notes match this filter."}
                 </p>
               </div>
             )}

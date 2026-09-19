@@ -116,7 +116,7 @@ export const fetchAllSermons = async (): Promise<Sermon[]> => {
   const filenames = await fetchSermonIndex();
   const sermons = await Promise.all(filenames.map(fetchSermon));
   // Sort by date descending
-  return sermons.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  return sermons.sort((a, b) => toSermonDate(b.date).getTime() - toSermonDate(a.date).getTime());
 };
 
 export const fetchSermonById = async (id: string): Promise<Sermon | null> => {
@@ -128,11 +128,37 @@ export const fetchSermonById = async (id: string): Promise<Sermon | null> => {
   }
 };
 
+/**
+ * Sermon dates are plain `YYYY-MM-DD` calendar dates with no time or zone.
+ * `new Date("2026-02-01")` parses as UTC midnight, which shifts the day — and
+ * sometimes the month or year — in any timezone behind UTC. Read the parts directly.
+ */
+export const getSermonDateParts = (date: string) => {
+  const [year, month, day] = date.split("-").map(Number);
+  return { year, month: month - 1, day };
+};
+
+/** Local-midnight Date for a sermon's calendar date, safe for display formatting. */
+export const toSermonDate = (date: string): Date => {
+  const { year, month, day } = getSermonDateParts(date);
+  return new Date(year, month, day);
+};
+
 export const getSermonsByYear = (sermons: Sermon[], year: number): Sermon[] => {
-  return sermons.filter((sermon) => new Date(sermon.date).getFullYear() === year);
+  return sermons.filter((sermon) => getSermonDateParts(sermon.date).year === year);
 };
 
 export const getAvailableYears = (sermons: Sermon[]): number[] => {
-  const years = sermons.map((sermon) => new Date(sermon.date).getFullYear());
+  const years = sermons.map((sermon) => getSermonDateParts(sermon.date).year);
   return [...new Set(years)].sort((a, b) => b - a);
+};
+
+/** Calendar months (0 = January) that actually contain a sermon, in calendar order. */
+export const getAvailableMonths = (sermons: Sermon[]): number[] => {
+  const months = sermons.map((sermon) => getSermonDateParts(sermon.date).month);
+  return [...new Set(months)].sort((a, b) => a - b);
+};
+
+export const getSermonsByMonth = (sermons: Sermon[], month: number): Sermon[] => {
+  return sermons.filter((sermon) => getSermonDateParts(sermon.date).month === month);
 };
