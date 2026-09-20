@@ -282,23 +282,54 @@ export const resolveByDate = (text: string, sermons: Sermon[]): Sermon[] => {
 /* Sunday names                                                        */
 /* ------------------------------------------------------------------ */
 
-const FILLER = new Set([
-  "sunday", "sundays", "after", "before", "of", "the", "in", "on", "a", "an",
-  "and", "service", "services", "sermon", "sermons", "note", "notes", "for",
-  "was", "were", "what", "which", "when", "who", "is", "are", "did", "do",
-  "does", "week", "about", "tell", "me", "give", "show", "readings", "reading",
-  "theme", "preacher", "preached", "verses", "verse", "scripture", "bible",
+/** Structural words that carry no meaning in either a name or a keyword search. */
+const STRUCTURAL_STOP = new Set([
+  "sunday", "sundays", "after", "before", "of", "the", "in", "on", "at", "a", "an",
+  "and", "or", "is", "are", "was", "were", "did", "do", "does", "for", "by", "to",
+  "me", "my", "i", "we", "you", "it", "its", "that", "this", "what", "which",
+  "when", "who", "whom", "why", "how", "there", "any", "some",
+]);
+
+/**
+ * Question vocabulary that must never be mistaken for part of a Sunday's name.
+ *
+ * Without this, "Summarise the theme of Easter Sunday" tokenises to
+ * ["summarise", "easter"], no Sunday name contains "summarise", and the question
+ * falls through to the LLM with no targeted Sunday — the archive looks broken
+ * even though the match was right there.
+ */
+const QUESTION_STOP = new Set([
+  ...STRUCTURAL_STOP,
+  "service", "services", "sermon", "sermons", "note", "notes", "reading", "readings",
+  "theme", "themes", "preacher", "preachers", "preach", "preached", "preaching",
+  "verse", "verses", "scripture", "bible", "ibuku", "thoma",
   // Service words: "kikuyu readings for Easter" must not look like a Sunday
   // called "kikuyu easter".
   "kikuyu", "gikuyu", "g\u0129k\u0169y\u0169", "english",
+  // Open-ended question words.
+  "summarise", "summarize", "summary", "explain", "explains", "explanation",
+  "teach", "teaches", "teaching", "message", "messages", "lesson", "lessons",
+  "challenge", "challenges", "application", "reflect", "reflection", "meaning",
+  "means", "say", "says", "said", "talk", "speak", "discuss", "describe",
+  "overview", "gist", "give", "show", "tell", "about", "main", "point", "points",
 ]);
 
-const nameTokens = (value: string): string[] =>
+const tokenize = (value: string): string[] =>
   norm(value)
     .replace(/(\d+)(st|nd|rd|th)\b/g, "$1")
     .split(/[^a-z0-9\u0129\u0169]+/)
     .map((token) => NUMBER_WORDS[token] ?? token)
-    .filter((token) => token.length > 0 && !FILLER.has(token));
+    .filter((token) => token.length > 0);
+
+const nameTokens = (value: string): string[] =>
+  tokenize(value).filter((token) => !QUESTION_STOP.has(token));
+
+/**
+ * Looser than `nameTokens`: a keyword search must keep words like "message" or
+ * "points", which are noise in a Sunday name but meaningful in sermon notes.
+ */
+const searchTokens = (value: string): string[] =>
+  tokenize(value).filter((token) => !STRUCTURAL_STOP.has(token));
 
 export interface NameMatch {
   sermon: Sermon;
@@ -314,13 +345,25 @@ export const resolveByName = (text: string, sermons: Sermon[]): NameMatch[] => {
   const asked = nameTokens(text);
   if (!asked.length) return [];
 
+  // Only tokens that actually occur in some Sunday name can be part of one. This
+  // absorbs whatever question vocabulary the visitor brings — "archive",
+  // "summarise", "explain" — without chasing an ever-growing stop list. A typo
+  // simply drops out and matches nothing, rather than matching wrongly.
+  const vocabulary = new Set<string>();
+  for (const sermon of sermons) {
+    for (const token of nameTokens(sermon.sundayName ?? "")) vocabulary.add(token);
+  }
+
+  const meaningful = asked.filter((token) => vocabulary.has(token));
+  if (!meaningful.length) return [];
+
   const matches: NameMatch[] = [];
   for (const sermon of sermons) {
     const tokens = nameTokens(sermon.sundayName ?? "");
     if (!tokens.length) continue;
-    if (!asked.every((token) => tokens.includes(token))) continue;
-    const extra = tokens.length - asked.length;
-    matches.push({ sermon, score: asked.length * 10 - extra });
+    if (!meaningful.every((token) => tokens.includes(token))) continue;
+    const extra = tokens.length - meaningful.length;
+    matches.push({ sermon, score: meaningful.length * 10 - extra });
   }
 
   return matches.sort(
@@ -334,7 +377,7 @@ export const resolveByName = (text: string, sermons: Sermon[]): NameMatch[] => {
  * from general knowledge.
  */
 export const searchSermons = (text: string, sermons: Sermon[], limit = 3): Sermon[] => {
-  const terms = [...new Set(nameTokens(text).filter((token) => token.length >= 3))];
+  const terms = [...new Set(searchTokens(text).filter((token) => token.length >= 3))];
   if (!terms.length) return [];
 
   const scored = sermons.map((sermon) => {
@@ -391,7 +434,7 @@ export const detectService = (text: string): ServiceKey | undefined => {
  * "what did the vicar say about stewardship?" gets read properly.
  */
 const OPEN_ENDED =
-  /\b(why|how|explain\w*|meaning|summar\w*|teach\w*|message|say about|said about|talk about|speak about|lesson|lessons|challenge|challenges|application|reflect\w*)\b/;
+  /\b(why|how|explain\w*|meaning|summar\w*|teach\w*|message|lesson|lessons|challenge|challenges|application|reflect\w*|describe|overview)\b|\b(say|said|talk|spoke|speak|preach\w*|tell me)\s+about\b|\bwhat does .* mean\b/;
 
 export const isOpenEnded = (text: string): boolean => OPEN_ENDED.test(norm(text));
 
@@ -475,12 +518,28 @@ export const pickCandidate = (text: string, candidates: Sermon[]): Sermon | unde
 /* Resolution                                                          */
 /* ------------------------------------------------------------------ */
 
+export interface QueryOptions {
+  /**
+   * `off`  — never call the LLM (the visitor chose archive-only).
+   * `auto` — escalate open-ended questions only (default).
+   * `always` — escalate every question, so even a plain lookup gets a narrative.
+   */
+  ai?: "off" | "auto" | "always";
+}
+
 export const resolveQuery = (
   text: string,
   sermons: Sermon[],
   context: QueryContext = {},
+  options: QueryOptions = {},
 ): QueryResult => {
   const t = norm(text);
+  const ai = options.ai ?? "auto";
+  // Escalation is driven by the *shape of the question*, not by the intent
+  // bucket. Keying it off `intent === "unknown"` meant "Explain the readings for
+  // 19 July 2026" matched a Sunday, took the structured path, and never reached
+  // the LLM — the visitor saw the archive only, however they phrased it.
+  const wantsAi = ai !== "off" && (ai === "always" || isOpenEnded(t));
 
   // 1. Continue the previous turn before anything else.
   if (context.pendingSermon) {
@@ -529,8 +588,10 @@ export const resolveQuery = (
       }
     }
     if (intent === "help") return { intent: "help" };
-    if (intent === "list") return { intent: "list", list: sermons };
-    if (isOpenEnded(t)) {
+    if (intent === "list") {
+      return { intent: "list", list: sermons, escalate: wantsAi, relevant: wantsAi ? sermons.slice(0, 3) : undefined };
+    }
+    if (wantsAi) {
       return { intent: "unknown", escalate: true, relevant: searchSermons(text, sermons) };
     }
     if (
@@ -546,11 +607,24 @@ export const resolveQuery = (
 
   // 4. A preacher with a body of work reads as a list, not a single Sunday.
   if (preacher && matches.length > 1) {
-    return { intent: "list", list: matches, preacher, service };
+    return {
+      intent: "list",
+      list: matches,
+      preacher,
+      service,
+      escalate: wantsAi,
+      relevant: wantsAi ? matches.slice(0, 3) : undefined,
+    };
   }
 
   if (intent === "list") {
-    return { intent: "list", list: matches, service };
+    return {
+      intent: "list",
+      list: matches,
+      service,
+      escalate: wantsAi,
+      relevant: wantsAi ? matches.slice(0, 3) : undefined,
+    };
   }
 
   // 5. Several Sundays match equally — ask which.
@@ -560,24 +634,15 @@ export const resolveQuery = (
 
   // 6. Exactly one Sunday.
   const sermon = matches[0];
-  if (intent === "unknown") {
-    // A Sunday is identified; only an open-ended question also needs the LLM,
-    // and that Sunday is the grounding it reads from.
-    const escalate = isOpenEnded(t);
-    return {
-      intent: "sunday_overview",
-      sermon,
-      service,
-      offerNotes: true,
-      escalate,
-      relevant: escalate ? [sermon] : undefined,
-    };
+  const relevant = wantsAi ? [sermon] : undefined;
+
+  if (intent === "notes") {
+    return { intent: "notes", sermon, service, escalate: wantsAi, relevant };
   }
-  if (intent === "notes") return { intent: "notes", sermon, service };
   if (intent === "readings" || intent === "preacher" || intent === "theme") {
-    return { intent, sermon, service, offerNotes: true };
+    return { intent, sermon, service, offerNotes: true, escalate: wantsAi, relevant };
   }
-  return { intent: "sunday_overview", sermon, service, offerNotes: true };
+  return { intent: "sunday_overview", sermon, service, offerNotes: true, escalate: wantsAi, relevant };
 };
 
 /* ------------------------------------------------------------------ */

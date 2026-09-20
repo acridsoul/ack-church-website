@@ -328,6 +328,77 @@ describe("the core flow: Sunday -> readings, preacher, theme -> offer notes", ()
   });
 });
 
+describe("escalation routing", () => {
+  /*
+   * Escalation used to be keyed off `intent === "unknown"`. Any question
+   * containing "notes", "readings" or "theme" therefore took the structured
+   * path and never reached the LLM — the visitor got the local archive only,
+   * however they phrased it.
+   */
+  it("escalates an open-ended question that also names a structured intent", () => {
+    const result = resolveQuery("Explain the readings for 19 July 2026", sermons);
+    expect(result.sermon?.id).toBe("2026-07-19");
+    expect(result.escalate).toBe(true);
+    expect(result.relevant?.[0]?.id).toBe("2026-07-19");
+  });
+
+  it("escalates an open-ended question about a theme", () => {
+    const result = resolveQuery("Summarise the theme of Easter Sunday", sermons);
+    expect(result.escalate).toBe(true);
+    // The question words must not poison the name match.
+    expect(result.sermon?.sundayName).toBe("Easter Sunday");
+  });
+
+  it("does not escalate a plain lookup", () => {
+    const result = resolveQuery("readings for 7th Sunday after Trinity", sermons);
+    expect(result.sermon?.id).toBe("2026-07-19");
+    expect(result.escalate).toBeFalsy();
+  });
+
+  it("keeps question words out of Sunday-name matching", () => {
+    for (const text of [
+      "Summarise the theme of Easter Sunday",
+      "Explain the readings for Easter Sunday",
+      "What does the archive teach about Easter Sunday",
+      "Tell me about Easter Sunday",
+    ]) {
+      expect(resolveQuery(text, sermons).sermon?.sundayName, text).toBe("Easter Sunday");
+    }
+  });
+
+  it("never escalates when AI is switched off", () => {
+    for (const text of [
+      "Explain the readings for 19 July 2026",
+      "what did the vicar say about stewardship",
+      "Summarise the theme of Easter Sunday",
+    ]) {
+      const result = resolveQuery(text, sermons, {}, { ai: "off" });
+      expect(result.escalate, text).toBeFalsy();
+    }
+  });
+
+  it("escalates even a plain lookup when AI is set to always", () => {
+    const result = resolveQuery("readings for 7th Sunday after Trinity", sermons, {}, { ai: "always" });
+    expect(result.sermon?.id).toBe("2026-07-19");
+    expect(result.escalate).toBe(true);
+    expect(result.relevant?.length).toBeGreaterThan(0);
+  });
+
+  it("always supplies grounding whenever it escalates", () => {
+    const cases: Array<[string, Parameters<typeof resolveQuery>[3]]> = [
+      ["what did the vicar say about stewardship", undefined],
+      ["Explain the readings for 19 July 2026", undefined],
+      ["Summarise the theme of Easter Sunday", undefined],
+      ["readings for 7th Sunday after Trinity", { ai: "always" }],
+    ];
+    for (const [text, options] of cases) {
+      const result = resolveQuery(text, sermons, {}, options);
+      expect(result.escalate, text).toBe(true);
+      expect(result.relevant?.length, text).toBeGreaterThan(0);
+    }
+  });
+});
+
 describe("ambiguity, lists and dead ends", () => {
   it("asks which Sunday when several match equally", () => {
     const result = resolveQuery("lent", sermons);

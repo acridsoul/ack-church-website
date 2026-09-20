@@ -23,6 +23,7 @@ The site serves as a visitor-first spiritual home, a weekly liturgical bulletin,
   - [Canonical Sermon Format](#canonical-sermon-format)
 - [Ask the Archive (Sermon Chatbot)](#ask-the-archive-sermon-chatbot)
   - [How a question is answered](#how-a-question-is-answered)
+  - [Choosing how answers are produced](#choosing-how-answers-are-produced)
   - [Enabling the AI answers](#enabling-the-ai-answers)
   - [Deploying the chat backend](#deploying-the-chat-backend)
 - [Tech Stack](#tech-stack)
@@ -194,10 +195,21 @@ The deterministic layer in [`src/lib/sermonQuery.ts`](src/lib/sermonQuery.ts) do
 
 1. **Preacher names are normalised.** The archive records the same people many ways — `Vicar Henry Kinyua`, `Rev Henry`, `Vicar`, and `L/R Kungu` / `Lay Reader Kungu` / `Lay Reader Francis Kungu`. An explicit alias table maps them onto one canonical name. It is hand-written on purpose: `Veronica Nyokabi` and `Esther Nyokabi` are different people, so names are never merged by surname.
 2. **Dates are parsed in many shapes** — ISO, `19/07/2026`, `19 July`, `July 19`, `latest` — always through `getSermonDateParts`, never `new Date(string)` (see the field notes above).
-3. **Sunday names are matched by token**, so `7th Sunday After Trinity`, `seventh sunday after trinity` and `trinity 7` all land on the same entry, and an exact match beats a longer name that merely contains it.
+3. **Sunday names are matched by token**, so `7th Sunday After Trinity`, `seventh sunday after trinity` and `trinity 7` all land on the same entry, and an exact match beats a longer name that merely contains it. Tokens that appear in no Sunday name at all are ignored, so the question's own wording — *"Summarise the theme of Easter Sunday"* — never hides the Sunday it names.
 4. **Ambiguity is surfaced, not guessed.** `lent` matches five Sundays, so the bot lists them and asks which one; `trinity` names one entry exactly, so it answers.
 
 Anything this layer cannot place is escalated to the LLM, which receives the matched sermon (or keyword-retrieved extracts) as its only source, plus instructions never to invent scripture text, preachers, themes or dates.
+
+### Choosing how answers are produced
+
+A switch at the top of `/ask` controls this:
+
+| Mode | Behaviour |
+|:---|:---|
+| **Archive + AI** (default) | Plain lookups — *"readings for 7th Sunday after Trinity"* — are answered instantly from the archive at no cost. Open-ended questions — *"what did the vicar say about stewardship?"* — are answered by the AI from the notes. Any structured answer also offers **Explain with AI**. |
+| **Archive only** | Never calls the AI. Every answer comes from the archive, free and offline-safe. |
+
+Escalation is decided by the *shape of the question*, not by which bucket its keywords fall into. A question that mentions "notes" or "readings" and also asks for explanation still reaches the LLM: `QueryResult.escalate` is driven by `isOpenEnded()`, and `resolveQuery` takes `{ ai: "off" | "auto" | "always" }`.
 
 ### Enabling the AI answers
 

@@ -51,8 +51,12 @@ The site is deployed via Lovable (the project origin), or via Vercel when the `/
 
 **Sermon chatbot** — `/ask` is answered in two layers:
 
-1. `src/lib/sermonQuery.ts` — pure and deterministic, covered by `sermonQuery.test.ts`. `resolveQuery(text, sermons, context)` returns a `QueryResult` describing what to say. It canonicalises preacher names through an explicit alias table (**never merge by surname** — the archive holds two different Nyokabis), parses dates without `new Date(string)`, matches Sunday names by token so `trinity 7` finds `7th Sunday After Trinity`, and reports ambiguity instead of guessing.
-2. `api/chat.ts` — a Vercel function that holds the LLM key. It is consulted only when `QueryResult.escalate` is true (open-ended questions) and answers strictly from the extracts the client sends. `src/lib/askApi.ts` treats every failure as `null`, so the page degrades to the deterministic answer instead of showing an error.
+1. `src/lib/sermonQuery.ts` — pure and deterministic, covered by `sermonQuery.test.ts`. `resolveQuery(text, sermons, context, options)` returns a `QueryResult` describing what to say. It canonicalises preacher names through an explicit alias table (**never merge by surname** — the archive holds two different Nyokabis), parses dates without `new Date(string)`, matches Sunday names by token so `trinity 7` finds `7th Sunday After Trinity`, and reports ambiguity instead of guessing.
+2. `api/chat.ts` — a Vercel function that holds the LLM key. It answers strictly from the extracts the client sends. `src/lib/askApi.ts` treats every failure as `null`, so the page degrades to the deterministic answer instead of showing an error.
+
+**Escalation is driven by the shape of the question, not by the intent bucket.** `QueryResult.escalate` comes from `isOpenEnded()`; do not gate it on `intent === "unknown"`, or any question containing "notes", "readings" or "theme" will silently skip the LLM and appear to be archive-only. `/ask` passes `{ ai: "off" | "auto" | "always" }` from its mode switch — `off` is archive-only, `auto` escalates open-ended questions, `always` escalates everything. Whenever `escalate` is true, `relevant` must carry the grounding sermons.
+
+Sunday-name matching ignores tokens that appear in no Sunday name (the `resolveByName` vocabulary). That is what keeps a question's own wording — "Summarise the theme of Easter Sunday" — from hiding the Sunday it names. Prefer that over extending the stop-word list.
 
 > **Never expose a secret to Vite.** Only `VITE_*` variables reach the browser bundle. The LLM key must stay on `LLM_API_KEY`, which only the function reads; a `VITE_LLM_API_KEY` would publish it to every visitor. See `.env.example`.
 

@@ -244,6 +244,50 @@ const AssistantText = ({ children }: { children: ReactNode }) => (
   </div>
 );
 
+type AnswerMode = "ai" | "archive";
+
+const MODES: Array<{ value: AnswerMode; label: string }> = [
+  { value: "ai", label: "Archive + AI" },
+  { value: "archive", label: "Archive only" },
+];
+
+const ModeToggle = ({
+  mode,
+  onChange,
+  disabled,
+}: {
+  mode: AnswerMode;
+  onChange: (mode: AnswerMode) => void;
+  disabled?: boolean;
+}) => (
+  <div
+    role="radiogroup"
+    aria-label="How answers are produced"
+    className="inline-flex items-center gap-0.5 rounded-full border border-border bg-background p-0.5"
+  >
+    {MODES.map(({ value, label }) => (
+      <button
+        key={value}
+        type="button"
+        role="radio"
+        aria-checked={mode === value}
+        disabled={disabled}
+        onClick={() => onChange(value)}
+        className={cn(
+          "rounded-full px-3 py-1 text-xs font-semibold font-body transition-colors",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2",
+          mode === value
+            ? "bg-navy text-cream"
+            : "text-foreground/70 hover:text-navy",
+          disabled && "opacity-50 pointer-events-none",
+        )}
+      >
+        {label}
+      </button>
+    ))}
+  </div>
+);
+
 /* ------------------------------------------------------------------ */
 /* Page                                                                */
 /* ------------------------------------------------------------------ */
@@ -253,6 +297,7 @@ const AskSermons = () => {
   const [turns, setTurns] = useState<Turn[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  const [mode, setMode] = useState<AnswerMode>("ai");
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const lastAssistant = useMemo(
@@ -281,7 +326,9 @@ const AskSermons = () => {
       candidates: lastAssistant?.result.candidates,
     };
 
-    const result = resolveQuery(question, sermons, context);
+    const result = resolveQuery(question, sermons, context, {
+      ai: mode === "archive" ? "off" : "auto",
+    });
     const userId = nextId();
     const assistantId = nextId();
 
@@ -323,6 +370,39 @@ const AskSermons = () => {
           : turn,
       ),
     );
+  };
+
+  /**
+   * On-demand escalation, so any lookup can get a narrative even though the
+   * automatic path leaves plain lookups to the archive.
+   */
+  const explainWithAi = async (turnId: string, sermon: Sermon) => {
+    if (busy) return;
+    setBusy(true);
+    setTurns((prev) =>
+      prev.map((turn) =>
+        turn.id === turnId && turn.role === "assistant"
+          ? { ...turn, aiPending: true, aiUnavailable: false, aiText: undefined }
+          : turn,
+      ),
+    );
+    const answer = await askAi(
+      `Summarise what the sermon notes for ${sermonTitle(sermon)} teach, and what they mean for us.`,
+      [sermon],
+    );
+    setTurns((prev) =>
+      prev.map((turn) =>
+        turn.id === turnId && turn.role === "assistant"
+          ? {
+              ...turn,
+              aiPending: false,
+              aiText: answer ?? undefined,
+              aiUnavailable: answer === null,
+            }
+          : turn,
+      ),
+    );
+    setBusy(false);
   };
 
   const renderAssistant = (turn: AssistantTurn) => {
@@ -441,6 +521,22 @@ const AskSermons = () => {
             onOpenNotes={() => openNotes(turn.id, result.sermon!)}
             onDecline={() => submit("no thanks")}
           />
+          {mode === "ai" && !turn.aiText && !turn.aiPending && (
+            <button
+              type="button"
+              onClick={() => explainWithAi(turn.id, result.sermon!)}
+              disabled={busy}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-full border border-border px-3.5 py-1 text-xs font-semibold font-body",
+                "text-foreground/80 transition-colors hover:border-gold/60 hover:bg-gold/5 hover:text-navy",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2",
+                "disabled:opacity-50 disabled:pointer-events-none",
+              )}
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              Explain with AI
+            </button>
+          )}
           {turn.aiPending && (
             <p className="flex items-center gap-2 text-sm font-body text-muted-foreground">
               <Loader2 className="w-4 h-4 text-gold animate-spin motion-reduce:animate-none" />
@@ -489,8 +585,9 @@ const AskSermons = () => {
         {(turn.aiUnavailable || !turn.aiPending) && !turn.aiText && (
           <AssistantText>
             <p className="mb-2">
-              I answer from the parish sermon archive, and I couldn't match that to a Sunday. Try
-              naming one:
+              {mode === "archive"
+                ? "Archive-only mode answers about a named Sunday, and I couldn't match one. Switch to Archive + AI for open-ended questions, or name a Sunday:"
+                : "I answer from the parish sermon archive, and I couldn't match that to a Sunday. Try naming one:"}
             </p>
             <SuggestionChips onPick={submit} busy={busy} />
           </AssistantText>
@@ -539,6 +636,15 @@ const AskSermons = () => {
 
           {!isLoading && !isError && (
             <>
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                <p className="text-xs text-muted-foreground font-body">
+                  {mode === "ai"
+                    ? "Open-ended questions are answered by AI from the notes; lookups stay instant."
+                    : "Answers come only from the sermon archive. No AI is used."}
+                </p>
+                <ModeToggle mode={mode} onChange={setMode} disabled={busy} />
+              </div>
+
               <ScrollArea className="h-[55vh] min-h-[340px] rounded-xl border border-border bg-background p-4">
                 <div
                   role="log"
